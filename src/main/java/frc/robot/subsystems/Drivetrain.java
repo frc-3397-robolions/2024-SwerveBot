@@ -9,6 +9,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -84,6 +87,8 @@ public class Drivetrain extends SubsystemBase {
   private SwerveModuleState[] m_desStates = DriveConstants.kSwerveKinematics
       .toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 0.0));
 
+  private final Field2d m_field = new Field2d();
+
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
    */
@@ -121,6 +126,7 @@ public class Drivetrain extends SubsystemBase {
         this::onBlueSide,
         this // Reference to this subsystem to set requirements
     );
+    SmartDashboard.putData("Field", m_field);
   }
 
   /**
@@ -178,6 +184,14 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle());
     SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle());
     SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle());
+
+    double[] states = new double[8];
+    for (int i = 0; i < getModuleStates().length; i++) {
+      states[i * 2] = getModuleStates()[i].angle.getDegrees();
+      states[i * 2 + 1] = getModuleStates()[i].speedMetersPerSecond;
+    }
+
+    SmartDashboard.putNumberArray("States", states);
 
     updateOdometry();
 
@@ -273,9 +287,7 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = m_odometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
 
-    SmartDashboard.putNumber("Robot X", position.getX());
-    SmartDashboard.putNumber("Robot Y", position.getY());
-    SmartDashboard.putNumber("Robot Gyro", getGyro().getRadians());
+    m_field.setRobotPose(pose);
 
     return pose;
   }
@@ -337,6 +349,11 @@ public class Drivetrain extends SubsystemBase {
   public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] { m_FLModule.getPosition(), m_FRModule.getPosition(), m_RLModule.getPosition(),
         m_RRModule.getPosition() };
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    return new SwerveModuleState[] { m_FLModule.getState(), m_FRModule.getState(), m_RLModule.getState(),
+        m_RRModule.getState() };
   }
 
   public boolean onBlueSide() {
