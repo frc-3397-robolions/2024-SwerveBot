@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 import javax.swing.text.html.Option;
 
 import frc.robot.RobotContainer;
+import frc.robot.Constants;
 import frc.robot.Constants.*;
 import frc.robot.Constants.DriveConstants.FrontLeft;
 import frc.robot.Constants.DriveConstants.FrontRight;
@@ -45,6 +46,7 @@ import frc.robot.Constants.DriveConstants.KeepAngle;
 import frc.robot.Constants.DriveConstants.RearLeft;
 import frc.robot.Constants.DriveConstants.RearRight;
 import frc.robot.Constants.ModuleConstants.Drive;
+import frc.robot.Robot;
 
 /**
  * Implements a swerve Drivetrain Subsystem for the Robot
@@ -88,6 +90,8 @@ public class Drivetrain extends SubsystemBase {
       .toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 0.0));
 
   private final Field2d m_field = new Field2d();
+
+  private Pose2d simOdometryPose = new Pose2d();
 
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
@@ -164,9 +168,19 @@ public class Drivetrain extends SubsystemBase {
     }
 
     if (fieldRelative) {
-      setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()));
+      setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getGyro()));
     } else {
       setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
+    }
+
+    if (Robot.isSimulation()) {
+      ChassisSpeeds speeds = DriveConstants.kSwerveKinematics.toChassisSpeeds(m_desStates);
+      simOdometryPose = simOdometryPose.exp(
+          new Twist2d(
+              speeds.vxMetersPerSecond * .02,
+              speeds.vyMetersPerSecond * .02,
+              speeds.omegaRadiansPerSecond * .02));
+      m_field.setRobotPose(simOdometryPose);
     }
   }
 
@@ -186,9 +200,9 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle());
 
     double[] states = new double[8];
-    for (int i = 0; i < getModuleStates().length; i++) {
-      states[i * 2] = getModuleStates()[i].angle.getDegrees();
-      states[i * 2 + 1] = getModuleStates()[i].speedMetersPerSecond;
+    for (int i = 0; i < m_desStates.length; i++) {
+      states[i * 2] = m_desStates[i].angle.getDegrees();
+      states[i * 2 + 1] = m_desStates[i].speedMetersPerSecond;
     }
 
     SmartDashboard.putNumberArray("States", states);
@@ -273,7 +287,7 @@ public class Drivetrain extends SubsystemBase {
    * @return Rotation2d object containing Gyro angle
    */
   public Rotation2d getGyro() {
-    return ahrs.getRotation2d();
+    return Robot.isSimulation() ? simOdometryPose.getRotation() : ahrs.getRotation2d();
   }
 
   /**
@@ -287,7 +301,8 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = m_odometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
 
-    m_field.setRobotPose(pose);
+    if (Robot.isReal())
+      m_field.setRobotPose(pose);
 
     return pose;
   }

@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -14,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
@@ -29,7 +32,10 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     private final CANSparkMax m_driveMotor;
     private final RelativeEncoder m_azimuthEnc;
     private final RelativeEncoder m_driveEnc;
+    private EncoderSim m_azimuthEncSim;
+    private EncoderSim m_driveEncSim;
     private final CANcoder m_absEncoder;
+    private CANcoderSimState m_absEncoderSimState;
     private final double m_offset;
     private final SparkPIDController m_drivePID;
     private final SparkPIDController m_azimuthPID;
