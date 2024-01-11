@@ -9,6 +9,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -24,7 +26,9 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -78,12 +82,6 @@ public class Drivetrain extends SubsystemBase {
 
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
-  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      ahrs.getRotation2d(), getModulePositions());
-
-  private final SwerveDriveOdometry m_autoOdometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      ahrs.getRotation2d(), getModulePositions());
-
   private final double[] m_latestSlew = { 0.0, 0.0, 0.0 };
 
   private SwerveModuleState[] m_desStates = DriveConstants.kSwerveKinematics
@@ -93,6 +91,18 @@ public class Drivetrain extends SubsystemBase {
 
   private Pose2d simOdometryPose = new Pose2d();
 
+  private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+      DriveConstants.kSwerveKinematics,
+      getGyro(),
+      getModulePositions(),
+      new Pose2d());
+
+  private SwerveDrivePoseEstimator m_autoPoseEstimator = new SwerveDrivePoseEstimator(
+      DriveConstants.kSwerveKinematics,
+      getGyro(),
+      getModulePositions(),
+      new Pose2d());
+
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
    */
@@ -100,7 +110,7 @@ public class Drivetrain extends SubsystemBase {
     m_keepAngleTimer.reset();
     m_keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), new Pose2d());
+    m_poseEstimator.resetPosition(ahrs.getRotation2d(), getModulePositions(), new Pose2d());
     ahrs.reset();
 
     // Configure the AutoBuilder last
@@ -180,6 +190,7 @@ public class Drivetrain extends SubsystemBase {
               speeds.vxMetersPerSecond * .02,
               speeds.vyMetersPerSecond * .02,
               speeds.omegaRadiansPerSecond * .02));
+      m_poseEstimator.resetPosition(getGyro(), getModulePositions(), simOdometryPose);
       m_field.setRobotPose(simOdometryPose);
     }
   }
@@ -274,11 +285,11 @@ public class Drivetrain extends SubsystemBase {
    * once per loop to minimize error.
    */
   public void updateOdometry() {
-    m_odometry.update(ahrs.getRotation2d(), getModulePositions());
+    m_poseEstimator.update(ahrs.getRotation2d(), getModulePositions());
   }
 
   public void updateAutoOdometry() {
-    m_autoOdometry.update(ahrs.getRotation2d(), getModulePositions());
+    m_autoPoseEstimator.update(ahrs.getRotation2d(), getModulePositions());
   }
 
   /**
@@ -298,11 +309,8 @@ public class Drivetrain extends SubsystemBase {
    *         robot.
    */
   public Pose2d getPose() {
-    Pose2d pose = m_odometry.getPoseMeters();
+    Pose2d pose = m_poseEstimator.getEstimatedPosition();
     Translation2d position = pose.getTranslation();
-
-    if (Robot.isReal())
-      m_field.setRobotPose(pose);
 
     return pose;
   }
@@ -376,6 +384,19 @@ public class Drivetrain extends SubsystemBase {
     if (alliance.isPresent())
       return alliance.get() == Alliance.Blue;
     return true;
+  }
+
+  public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+    m_poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+  }
+
+  /**
+   * See
+   * {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}.
+   */
+  public void addVisionMeasurement(
+      Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+    m_poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
   }
 
   /**
