@@ -35,5 +35,8 @@ public class DriveRobot extends Command {
     @Override
     public void end(boolean interrupted) {
         SmartDashboard.putBoolean("DrivingByController", false);
+        m_drivetrain.drive(0, 0, 0.5, false, false);
+        Thread.sleep(1000);
+        m_drivetrain.drive(0, 0, 0, false, false);
     }
 }
