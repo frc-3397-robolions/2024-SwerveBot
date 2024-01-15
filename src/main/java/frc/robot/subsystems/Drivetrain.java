@@ -9,14 +9,20 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -32,6 +38,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.beans.DesignMode;
 import java.io.PipedInputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -172,16 +179,6 @@ public class Drivetrain extends SubsystemBase {
     } else {
       setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
     }
-
-    if (Robot.isSimulation()) {
-      ChassisSpeeds speeds = DriveConstants.kSwerveKinematics.toChassisSpeeds(m_desStates);
-      simOdometryPose = simOdometryPose.exp(
-          new Twist2d(
-              speeds.vxMetersPerSecond * .02,
-              speeds.vyMetersPerSecond * .02,
-              speeds.omegaRadiansPerSecond * .02));
-      m_field.setRobotPose(simOdometryPose);
-    }
   }
 
   @Override
@@ -206,6 +203,16 @@ public class Drivetrain extends SubsystemBase {
     }
 
     SmartDashboard.putNumberArray("States", states);
+
+    if (Robot.isSimulation()) {
+      ChassisSpeeds speeds = DriveConstants.kSwerveKinematics.toChassisSpeeds(m_desStates);
+      simOdometryPose = simOdometryPose.exp(
+          new Twist2d(
+              speeds.vxMetersPerSecond * .02,
+              speeds.vyMetersPerSecond * .02,
+              speeds.omegaRadiansPerSecond * .02));
+      m_field.setRobotPose(simOdometryPose);
+    }
 
     updateOdometry();
 
@@ -301,8 +308,8 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = m_odometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
 
-    if (Robot.isReal())
-      m_field.setRobotPose(pose);
+    if (Robot.isSimulation())
+      pose = simOdometryPose;
 
     return pose;
   }
@@ -426,5 +433,63 @@ public class Drivetrain extends SubsystemBase {
     m_slewX = new SlewRateLimiter(translation, -translation, m_latestSlew[0]);
     m_slewY = new SlewRateLimiter(translation, -translation, m_latestSlew[1]);
     m_slewRot = new SlewRateLimiter(rotation, -rotation, m_latestSlew[2]);
+  }
+
+  public Command goToOrigin() {
+    List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+        getPose(),
+        new Pose2d(2, 5, Rotation2d.fromDegrees(0)));
+    // Create the path using the bezier points created above
+    PathPlannerPath path = new PathPlannerPath(
+        bezierPoints,
+        new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI), // The constraints for this path. If using a
+                                                                 // differential drivetrain, the angular constraints
+                                                                 // have no effect.
+        new GoalEndState(3.0, Rotation2d.fromDegrees(0)) // Goal end state. You can set a holonomic rotation here. If
+                                                         // using a differential drivetrain, the rotation will have no
+                                                         // effect.
+    );
+
+    // Prevent the path from being flipped if the coordinates are already correct
+    path.preventFlipping = true;
+    return new FollowPathHolonomic(
+        path,
+        this::getPose, // Robot pose supplier
+        this::getChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        this::setModuleStates, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+            4.5, // Max module speed, in m/s
+            0.4, // Drive base radius in meters. Distance from robot center to furthest module.
+            new ReplanningConfig() // Default path replanning config. See the API for the options here
+        ),
+        () -> {
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
+  }
+
+  public Command goToOrigin2() {
+    // Since we are using a holonomic drivetrain, the rotation component of this
+    // pose
+    // represents the goal holonomic rotation
+    Pose2d targetPose = new Pose2d(2, 5, Rotation2d.fromDegrees(0));
+
+    // Create the constraints to use while pathfinding
+    PathConstraints constraints = new PathConstraints(
+        3.0, 4.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    Command pathfindingCommand = AutoBuilder.pathfindToPose(
+        targetPose,
+        constraints,
+        0.0, // Goal end velocity in meters/sec
+        0.0 // Rotation delay distance in meters. This is how far the robot should travel
+            // before attempting to rotate.
+    );
+    return pathfindingCommand;
   }
 }

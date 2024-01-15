@@ -2,15 +2,46 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2,
-      "y": 2
+      "x": 1.3552185662929883,
+      "y": 5.546821904454621
     },
-    "rotation": 0
+    "rotation": 0.0
   },
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "FireShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeOn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Sub Front to Note 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeOff"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Note 2 to Sub Front"
+          }
+        }
+      ]
     }
   },
   "folder": null,

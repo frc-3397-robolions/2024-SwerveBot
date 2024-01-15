@@ -10,7 +10,9 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 
+import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,7 +46,10 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(m_drive);
-    m_chooser = AutoBuilder.buildAutoChooser();
+
+    // NamedCommands.registerCommand("Print Command", m_drivetrain.run());
+
+    m_chooser = AutoBuilder.buildAutoChooser("New Auto");
     SmartDashboard.putData("Auto Chooser", m_chooser);
     // Configure the trigger bindings
     configureBindings();
@@ -72,7 +77,7 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.b().whileTrue(m_drivetrain.goToOrigin2());
   }
 
   /**
