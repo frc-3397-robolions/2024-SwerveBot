@@ -317,9 +317,9 @@ public class Drivetrain extends SubsystemBase {
 
   public Pose2d getAutoPose() {
     updateAutoOdometry();
-    Pose2d pose = m_autoOdometry.getPoseMeters();
+    Pose2d pose = m_autoPoseEstimator.getEstimatedPosition();
     Translation2d position = pose.getTranslation();
-    return m_autoOdometry.getPoseMeters();
+    return m_autoPoseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -331,12 +331,12 @@ public class Drivetrain extends SubsystemBase {
     ahrs.reset();
     ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
     updateKeepAngle();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
-    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_poseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_autoPoseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
   public void setPose(Pose2d pose) {
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_poseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
   /**
@@ -349,7 +349,7 @@ public class Drivetrain extends SubsystemBase {
     ahrs.setAngleAdjustment(angle.getDegrees());
     Pose2d pose = new Pose2d(getPose().getTranslation(), angle);
     updateKeepAngle();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_poseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
   /**
