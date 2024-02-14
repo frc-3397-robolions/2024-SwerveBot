@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3552185662929883,
-      "y": 5.546821904454621
+      "x": 0.0,
+      "y": 0.0
     },
     "rotation": 0.0
   },
@@ -12,33 +12,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "FireShooter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeOn"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Sub Front to Note 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeOff"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Note 2 to Sub Front"
+            "pathName": "2M Forward"
           }
         }
       ]

@@ -435,43 +435,49 @@ public class Drivetrain extends SubsystemBase {
     m_slewRot = new SlewRateLimiter(rotation, -rotation, m_latestSlew[2]);
   }
 
+  // public Command goToOrigin() {
+  // List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+  // getPose(),
+  // new Pose2d(2, 5, Rotation2d.fromDegrees(0)));
+  // // Create the path using the bezier points created above
+  // PathPlannerPath path = new PathPlannerPath(
+  // bezierPoints,
+  // new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI), // The constraints
+  // for this path. If using a
+  // // differential drivetrain, the angular constraints
+  // // have no effect.
+  // new GoalEndState(3.0, Rotation2d.fromDegrees(0)) // Goal end state. You can
+  // set a holonomic rotation here. If
+  // // using a differential drivetrain, the rotation will have no
+  // // effect.
+  // );
+
+  // // Prevent the path from being flipped if the coordinates are already correct
+  // path.preventFlipping = true;
+  // return new FollowPathHolonomic(
+  // path,
+  // this::getPose, // Robot pose supplier
+  // this::getChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+  // this::setModuleStates, // Method that will drive the robot given ROBOT
+  // RELATIVE ChassisSpeeds
+  // new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should
+  // likely live in your Constants class
+  // new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+  // new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+  // 4.5, // Max module speed, in m/s
+  // 0.4, // Drive base radius in meters. Distance from robot center to furthest
+  // module.
+  // new ReplanningConfig() // Default path replanning config. See the API for the
+  // options here
+  // ),
+  // () -> {
+  // return false;
+  // },
+  // this // Reference to this subsystem to set requirements
+  // );
+  // }
+
   public Command goToOrigin() {
-    List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
-        getPose(),
-        new Pose2d(2, 5, Rotation2d.fromDegrees(0)));
-    // Create the path using the bezier points created above
-    PathPlannerPath path = new PathPlannerPath(
-        bezierPoints,
-        new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI), // The constraints for this path. If using a
-                                                                 // differential drivetrain, the angular constraints
-                                                                 // have no effect.
-        new GoalEndState(3.0, Rotation2d.fromDegrees(0)) // Goal end state. You can set a holonomic rotation here. If
-                                                         // using a differential drivetrain, the rotation will have no
-                                                         // effect.
-    );
-
-    // Prevent the path from being flipped if the coordinates are already correct
-    path.preventFlipping = true;
-    return new FollowPathHolonomic(
-        path,
-        this::getPose, // Robot pose supplier
-        this::getChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::setModuleStates, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-            4.5, // Max module speed, in m/s
-            0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-            new ReplanningConfig() // Default path replanning config. See the API for the options here
-        ),
-        () -> {
-          return false;
-        },
-        this // Reference to this subsystem to set requirements
-    );
-  }
-
-  public Command goToOrigin2() {
     // Since we are using a holonomic drivetrain, the rotation component of this
     // pose
     // represents the goal holonomic rotation
