@@ -27,7 +27,7 @@ public class DriveRobot extends Command {
 
         double desiredRot = -MathUtils.inputTransform(m_controller.getRightX()) * DriveConstants.kMaxAngularSpeed;
 
-        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, true);
+        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, false);
 
         SmartDashboard.putBoolean("DrivingByController", true);
     }

@@ -107,8 +107,8 @@ public class Drivetrain extends SubsystemBase {
     m_keepAngleTimer.reset();
     m_keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), new Pose2d());
     ahrs.reset();
+    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), new Pose2d());
 
     // Configure the AutoBuilder last
     AutoBuilder.configureHolonomic(
@@ -173,9 +173,13 @@ public class Drivetrain extends SubsystemBase {
     if (Math.abs(ySpeed) < 0.02) {
       ySpeed = 0.0;
     }
+    SmartDashboard.putNumber("DesiredXSpeed", xSpeed);
+    SmartDashboard.putNumber("DesiredYSpeed", ySpeed);
+    SmartDashboard.putNumber("DesiredRotation", rot);
 
     if (fieldRelative) {
-      setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getGyro()));
+      setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
+          Rotation2d.fromDegrees(-ahrs.getAngle())));
     } else {
       setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
     }
@@ -191,10 +195,15 @@ public class Drivetrain extends SubsystemBase {
 
     SmartDashboard.putNumber("Speed", speed);
 
-    SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle());
-    SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle());
-    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle());
-    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle());
+    SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle() * 180 / Math.PI);
+
+    SmartDashboard.putNumber("Front Left Ref", m_FLModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Ref", m_FRModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Ref", m_RLModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Ref", m_RRModule.getReferenceAngle() * 180 / Math.PI);
 
     double[] states = new double[8];
     for (int i = 0; i < m_desStates.length; i++) {
@@ -237,8 +246,9 @@ public class Drivetrain extends SubsystemBase {
         .toSwerveModuleStates(secondOrderKinematics(chassisSpeeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_desStates = desiredStates;
-    m_FLModule.setDesiredState(desiredStates[0]);
-    m_FRModule.setDesiredState(desiredStates[1]);
+    // @TODO UNDO THIS
+    m_FLModule.setDesiredState(desiredStates[1]);
+    m_FRModule.setDesiredState(desiredStates[0]);
     m_RLModule.setDesiredState(desiredStates[2]);
     m_RRModule.setDesiredState(desiredStates[3]);
   }
@@ -282,6 +292,8 @@ public class Drivetrain extends SubsystemBase {
    */
   public void updateOdometry() {
     m_odometry.update(ahrs.getRotation2d(), getModulePositions());
+    m_field.setRobotPose(m_odometry.getPoseMeters());
+    SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
   }
 
   public void updateAutoOdometry() {
@@ -294,7 +306,7 @@ public class Drivetrain extends SubsystemBase {
    * @return Rotation2d object containing Gyro angle
    */
   public Rotation2d getGyro() {
-    return Robot.isSimulation() ? simOdometryPose.getRotation() : ahrs.getRotation2d();
+    return Robot.isSimulation() ? simOdometryPose.getRotation() : ahrs.getRotation2d().times(-1);
   }
 
   /**

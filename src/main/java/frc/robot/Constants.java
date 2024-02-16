@@ -38,7 +38,7 @@ public final class Constants {
 
   public static final class ModuleConstants {
     public static final class Drive {
-      public static final double kGearRatio = (36.0 / 14.0) * (18.0 / 24.0) * (45.0 / 15.0);
+      public static final double kGearRatio = 6.74603175;
       public static final double kWheelDiameter = Units.inchesToMeters(4);
       public static final double kPositionFactor = (1.0 / kGearRatio) * kWheelDiameter * Math.PI;
       public static final double kVelocityFactor = kPositionFactor / 60.0;
@@ -49,46 +49,46 @@ public final class Constants {
     }
 
     public static final class Azimuth {
-      public static final double kGearRatio = (50.0 / 14.0) * (72.0 / 14.0);
+      public static final double kGearRatio = 150 / 7;
       public static final double kPositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
       public static final double kVelocityFactor = kPositionFactor / 60.0;
-      public static final double kp = 3.00;
+      public static final double kp = 1.00;
     }
 
   }
 
   public static final class DriveConstants {
 
-    public static final double kWheelBaseWidth = 0.4826;
-    public static final double kWheelBaseLength = 0.4826;
+    public static final double kWheelBaseWidth = Units.inchesToMeters(22.5);
+    public static final double kWheelBaseLength = Units.inchesToMeters(22.5);
 
     public static final class FrontLeft {
-      public static final int kDrive = 1;
-      public static final int kAzimuth = 2;
+      public static final int kDrive = 3;
+      public static final int kAzimuth = 4;
       public static final int kAbsEnc = 1;
       public static final double kOffset = -2.9630;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
 
     public static final class FrontRight {
-      public static final int kDrive = 3;
-      public static final int kAzimuth = 4;
+      public static final int kDrive = 1;
+      public static final int kAzimuth = 2;
       public static final int kAbsEnc = 2;
       public static final double kOffset = 1.2626;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, -kWheelBaseWidth / 2);
     }
 
     public static final class RearLeft {
-      public static final int kDrive = 7;
-      public static final int kAzimuth = 8;
+      public static final int kDrive = 5;
+      public static final int kAzimuth = 6;
       public static final int kAbsEnc = 0;
       public static final double kOffset = -1.582;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
 
     public static final class RearRight {
-      public static final int kDrive = 5;
-      public static final int kAzimuth = 6;
+      public static final int kDrive = 7;
+      public static final int kAzimuth = 8;
       public static final int kAbsEnc = 3;
       public static final double kOffset = -2.986;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, -kWheelBaseWidth / 2);
@@ -116,7 +116,7 @@ public final class Constants {
   public static final class GlobalConstants {
     public static final double kVoltCompensation = 12.6; // Sets a voltage compensation value ideally 12.6V
     public static final int PCHID = 20;
-    public static final int PDHID = 24;
+    public static final int PDHID = 1;
     public static final double kLoopTime = 0.020;
   }
 }
