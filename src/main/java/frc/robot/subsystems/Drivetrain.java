@@ -86,10 +86,10 @@ public class Drivetrain extends SubsystemBase {
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      ahrs.getRotation2d(), getModulePositions());
+      getGyro(), getModulePositions());
 
   private final SwerveDriveOdometry m_autoOdometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      ahrs.getRotation2d(), getModulePositions());
+      getGyro(), getModulePositions());
 
   private final double[] m_latestSlew = { 0.0, 0.0, 0.0 };
 
@@ -108,7 +108,7 @@ public class Drivetrain extends SubsystemBase {
     m_keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     ahrs.reset();
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), new Pose2d());
+    m_odometry.resetPosition(getGyro(), getModulePositions(), new Pose2d());
 
     // Configure the AutoBuilder last
     AutoBuilder.configureHolonomic(
@@ -179,7 +179,7 @@ public class Drivetrain extends SubsystemBase {
 
     if (fieldRelative) {
       setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
-          Rotation2d.fromDegrees(-ahrs.getAngle())));
+          getGyro()));
     } else {
       setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
     }
@@ -291,13 +291,13 @@ public class Drivetrain extends SubsystemBase {
    * once per loop to minimize error.
    */
   public void updateOdometry() {
-    m_odometry.update(ahrs.getRotation2d(), getModulePositions());
+    m_odometry.update(getGyro(), getModulePositions());
     m_field.setRobotPose(m_odometry.getPoseMeters());
     SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
   }
 
   public void updateAutoOdometry() {
-    m_autoOdometry.update(ahrs.getRotation2d(), getModulePositions());
+    m_autoOdometry.update(getGyro(), getModulePositions());
   }
 
   /**
