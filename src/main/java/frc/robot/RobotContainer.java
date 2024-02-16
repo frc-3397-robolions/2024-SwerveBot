@@ -49,7 +49,7 @@ public class RobotContainer {
 
     // NamedCommands.registerCommand("Print Command", m_drivetrain.run());
 
-    m_chooser = AutoBuilder.buildAutoChooser("New Auto");
+    m_chooser = AutoBuilder.buildAutoChooser("1M Forward");
     SmartDashboard.putData("Auto Chooser", m_chooser);
     // Configure the trigger bindings
     configureBindings();

@@ -19,7 +19,7 @@ public class DriveRobot extends Command {
 
     @Override
     public void execute() {
-        double desiredTrans[] = MathUtils.inputTransform(-m_controller.getLeftY(), -m_controller.getLeftX());
+        double desiredTrans[] = MathUtils.inputTransform(-m_controller.getLeftY(), m_controller.getLeftX());
         double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond;
 
         desiredTrans[0] *= maxLinear;
@@ -27,7 +27,7 @@ public class DriveRobot extends Command {
 
         double desiredRot = -MathUtils.inputTransform(m_controller.getRightX()) * DriveConstants.kMaxAngularSpeed;
 
-        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, false);
+        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, true);
 
         SmartDashboard.putBoolean("DrivingByController", true);
     }
