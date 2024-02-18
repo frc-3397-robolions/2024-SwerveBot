@@ -48,6 +48,9 @@ import java.util.function.Supplier;
 
 import javax.swing.text.html.Option;
 
+import org.opencv.photo.Photo;
+import org.photonvision.EstimatedRobotPose;
+
 import frc.robot.RobotContainer;
 import frc.robot.Constants;
 import frc.robot.Constants.*;
@@ -57,6 +60,7 @@ import frc.robot.Constants.DriveConstants.KeepAngle;
 import frc.robot.Constants.DriveConstants.RearLeft;
 import frc.robot.Constants.DriveConstants.RearRight;
 import frc.robot.Constants.ModuleConstants.Drive;
+import frc.robot.utilities.Photonvision;
 import frc.robot.Robot;
 
 /**
@@ -166,7 +170,8 @@ public class Drivetrain extends SubsystemBase {
    *                      field.
    */
   @SuppressWarnings("ParameterName")
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean keepAngle) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean keepAngle,
+      boolean noteLockOn) {
 
     xSpeed = m_slewX.calculate(xSpeed);
     ySpeed = m_slewY.calculate(ySpeed);
@@ -178,6 +183,8 @@ public class Drivetrain extends SubsystemBase {
 
     if (keepAngle) {
       rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
+    } else if (noteLockOn) {
+      rot = performNoteLockOn();
     }
 
     if (Math.abs(rot) < 0.02) {
@@ -294,6 +301,14 @@ public class Drivetrain extends SubsystemBase {
    */
   public void updateOdometry() {
     m_odometry.update(getGyro(), getModulePositions());
+    Optional<EstimatedRobotPose> result = Photonvision.instance.getEstimatedGlobalPose();
+    if (result.isPresent()) {
+      EstimatedRobotPose pose = result.get();
+      addVisionMeasurement(
+          pose.estimatedPose.toPose2d(),
+          pose.timestampSeconds,
+          Photonvision.instance.getEstimationStdDevs(pose.estimatedPose.toPose2d()));
+    }
     m_field.setRobotPose(m_odometry.getPoseMeters());
     SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
   }
@@ -448,6 +463,15 @@ public class Drivetrain extends SubsystemBase {
                                                                  // decel drift
       output = m_keepAnglePID.calculate(getGyro().getRadians(), keepAngle); // Set output command to the result of the
                                                                             // Keep Angle PID
+    }
+    return output;
+  }
+
+  public double performNoteLockOn() {
+    var result = Photonvision.instance.getLatestIntakeResult();
+    double output = 0;
+    if (result.hasTargets()) {
+      output = -m_keepAnglePID.calculate(result.getBestTarget().getYaw(), 0);
     }
     return output;
   }

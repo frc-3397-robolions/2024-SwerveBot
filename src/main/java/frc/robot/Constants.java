@@ -35,10 +35,13 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static class Vision {
-    public static final String kCameraName = "USB Camera";
+    public static final String kIntakeCameraName = "USB Camera";
+    public static final String kShooterCameraName = "USB Camera";
     // Cam mounted facing forward, half a meter forward of center, half a meter up
     // from center.
-    public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
+    public static final Transform3d kRobotToIntakeCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
+        new Rotation3d(0, 0, 0));
+    public static final Transform3d kRobotToShooterCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
         new Rotation3d(0, 0, 0));
 
     // The layout of the AprilTags on the field
