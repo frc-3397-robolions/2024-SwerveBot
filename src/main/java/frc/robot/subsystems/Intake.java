@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CurrentLimit;
@@ -22,7 +23,6 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   private final CANSparkMax angleMotor;
   private final CANSparkMax driveMotor;
-  private final RelativeEncoder driveEncoder;
   private final RelativeEncoder angleEncoder;
   private final SparkPIDController anglePID;
   private boolean intakeDesiredOut = false;
@@ -31,6 +31,7 @@ public class Intake extends SubsystemBase {
   private boolean outtaking = false;
 
   public Intake() {
+    // The motor controlling the angle of the assembly
     angleMotor = new CANSparkMax(kAngle, CANSparkMax.MotorType.kBrushless);
     angleMotor.setSmartCurrentLimit(CurrentLimit.kDrive);
     angleMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
@@ -45,31 +46,45 @@ public class Intake extends SubsystemBase {
     anglePID.setD(kD);
     anglePID.setFF(kFF);
     angleMotor.burnFlash();
+
+    // The motor driving the intake wheels
     driveMotor = new CANSparkMax(kDrive, CANSparkMax.MotorType.kBrushless);
-    driveEncoder = driveMotor.getEncoder();
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-
+    // Set the PID Controller to the corresponding angle for in/out
     anglePID.setReference(intakeStates.get(intakeDesiredOut), ControlType.kPosition);
 
+    // If the intake is within tolerance of it's desired angle, set this variable to
+    // true so other files can act
     if (MathUtils.angleInRange(angleEncoder.getPosition(), intakeStates.get(intakeDesiredOut), kPositionTolerance))
       intakeArrived = true;
     else
       intakeArrived = false;
 
+    // Drive intake wheels based on the desired state
     if (intaking)
       driveMotor.set(kIntakePower);
     else if (outtaking)
       driveMotor.set(kOuttakePower);
     else
       driveMotor.set(0);
+
+    // Putting data on SmartDashboard
+    SmartDashboard.putNumber("Intake Angle", angleEncoder.getPosition());
+    SmartDashboard.putNumber("Intake Desired Angle", intakeStates.get(intakeDesiredOut));
+    SmartDashboard.putBoolean("Intake Arrived", intakeArrived);
+    SmartDashboard.putBoolean("Intaking", intaking);
+    SmartDashboard.putBoolean("Outtaking", outtaking);
+  }
+
+  public boolean getIntakeArrived() {
+    return intakeArrived;
   }
 
   public Command lowerIntake() {
-    return run(() -> {
+    return runOnce(() -> {
       outtaking = false;
       intakeDesiredOut = true;
       intaking = true;
@@ -77,13 +92,13 @@ public class Intake extends SubsystemBase {
   }
 
   public Command raiseIntake() {
-    return run(() -> {
+    return runOnce(() -> {
       intaking = false;
       intakeDesiredOut = false;
     });
   }
 
-  public Command shoot() {
+  public Command eject() {
     return runEnd(
         () -> {
           outtaking = true;

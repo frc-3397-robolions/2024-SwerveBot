@@ -68,6 +68,7 @@ public final class Constants {
     public static final int kDrive = 60;
     public static final int kAzimuth = 20;
     public static final int kIntake = 40;
+    public static final int kShooter = 40;
   }
 
   public static final class ModuleConstants {
@@ -160,6 +161,12 @@ public final class Constants {
     public static final double kPositionTolerance = 0.04;
     public static final double kIntakePower = 0.5;
     public static final double kOuttakePower = 0.5;
+  }
+
+  public static final class ShooterConstants {
+    public static final int kLeft = 0;
+    public static final int kRight = 1;
+    public static final double kPower = 0.2;
   }
 
   public static final class GlobalConstants {
