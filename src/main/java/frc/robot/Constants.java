@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -64,6 +67,7 @@ public final class Constants {
   public static final class CurrentLimit {
     public static final int kDrive = 60;
     public static final int kAzimuth = 20;
+    public static final int kIntake = 40;
   }
 
   public static final class ModuleConstants {
@@ -141,6 +145,21 @@ public final class Constants {
         FrontRight.kLocation, RearLeft.kLocation, RearRight.kLocation);
 
     public static final double kRotTransFactor = 0.045;
+  }
+
+  public static final class IntakeConstants {
+    public static final int kAngle = 0;
+    public static final int kDrive = 1;
+    public static final double kP = 0.5;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0;
+    public static final double kGearRatio = 100;
+    public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
+    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.0, true, 0.75);
+    public static final double kPositionTolerance = 0.04;
+    public static final double kIntakePower = 0.5;
+    public static final double kOuttakePower = 0.5;
   }
 
   public static final class GlobalConstants {

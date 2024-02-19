@@ -1,0 +1,19 @@
+Driving workflow for speaker cycles:
+
+Driver: Drive to note with everything in and off
+Driver: While approaching note, turn on note lock
+Operator: When safe, lower intake and turn on wheels
+Operator: Once note controlled, raise intake and turn off wheels
+Driver: Drive to speaker
+Driver: When approaching speaker, turn on target lock
+Operator: Spin up shooter wheels
+Operator: When in range turn on intake wheels to shoot
+repeat
+
+
+Climbing workflow:
+Operator: Raise climber
+Driver: Drive to chain
+Operator: Climb
+
+Auto flow:

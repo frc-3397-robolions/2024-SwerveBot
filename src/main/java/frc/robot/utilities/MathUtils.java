@@ -1,5 +1,8 @@
 package frc.robot.utilities;
 
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.OperatorConstants;
 
@@ -47,6 +50,14 @@ public class MathUtils {
     }
 
     return new double[] { x, y };
+  }
+
+  public static boolean angleInRange(double pos, double targetPos, double tolerance) {
+    if (Math.abs(pos - targetPos) < tolerance) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }
