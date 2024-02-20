@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +26,7 @@ public class Intake extends SubsystemBase {
   private final CANSparkMax driveMotor;
   private final RelativeEncoder angleEncoder;
   private final SparkPIDController anglePID;
+  private final TrapezoidProfile profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(kMaxVel, kMaxAccel));
   private boolean intakeDesiredOut = false;
   private boolean intakeArrived = false;
   private boolean intaking = false;
@@ -33,7 +35,7 @@ public class Intake extends SubsystemBase {
   public Intake() {
     // The motor controlling the angle of the assembly
     angleMotor = new CANSparkMax(kAngle, CANSparkMax.MotorType.kBrushless);
-    angleMotor.setSmartCurrentLimit(CurrentLimit.kDrive);
+    angleMotor.setSmartCurrentLimit(CurrentLimit.kIntakeAngle);
     angleMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
     angleMotor.setInverted(false);
     angleMotor.setIdleMode(IdleMode.kBrake);
@@ -49,6 +51,10 @@ public class Intake extends SubsystemBase {
 
     // The motor driving the intake wheels
     driveMotor = new CANSparkMax(kDrive, CANSparkMax.MotorType.kBrushless);
+    driveMotor.setSmartCurrentLimit(CurrentLimit.kIntakeWheels);
+    driveMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
+    driveMotor.setInverted(false);
+    driveMotor.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
