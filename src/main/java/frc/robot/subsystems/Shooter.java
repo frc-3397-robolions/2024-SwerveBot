@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -28,6 +29,7 @@ public class Shooter extends SubsystemBase {
     leftMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
     leftMotor.setInverted(true);
     leftMotor.setIdleMode(IdleMode.kCoast);
+
     rightMotor = new CANSparkMax(kRight, MotorType.kBrushless);
     rightMotor.setSmartCurrentLimit(CurrentLimit.kShooter);
     rightMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);

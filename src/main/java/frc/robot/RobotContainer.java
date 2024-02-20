@@ -9,6 +9,8 @@ import frc.robot.commands.DriveRobot;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.utilities.Photonvision;
 
 import com.fasterxml.jackson.databind.util.Named;
@@ -34,6 +36,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Drivetrain m_drivetrain = new Drivetrain();
+  private final Intake m_intake = new Intake();
+  private final Shooter m_shooter = new Shooter();
   private final SendableChooser<Command> m_chooser;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -48,7 +52,10 @@ public class RobotContainer {
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(m_drive);
 
-    // NamedCommands.registerCommand("Print Command", m_drivetrain.run());
+    NamedCommands.registerCommand("Lower Intake", m_intake.lowerIntake().until(m_intake::getIntakeArrived));
+    NamedCommands.registerCommand("Raise Intake", m_intake.raiseIntake().until(m_intake::getIntakeArrived));
+    NamedCommands.registerCommand("Spin Wheels", m_shooter.shoot(0.5));
+    NamedCommands.registerCommand("Eject Note", m_intake.eject().withTimeout(1));
 
     m_chooser = AutoBuilder.buildAutoChooser("1M Forward");
     SmartDashboard.putData("Auto Chooser", m_chooser);

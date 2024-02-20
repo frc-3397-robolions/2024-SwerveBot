@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9468795694348142,
+        "x": 1.4921973789893526,
         "y": 5.519087794932347
       },
       "isLocked": false,
@@ -16,11 +16,27 @@
     },
     {
       "anchor": {
-        "x": 2.3351571027466376,
+        "x": 2.712894356905105,
         "y": 5.519087794932347
       },
       "prevControl": {
-        "x": 1.447617449844268,
+        "x": 2.3619023130617225,
+        "y": 5.519087794932347
+      },
+      "nextControl": {
+        "x": 2.966548679827623,
+        "y": 5.519087794932347
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.3921973789893525,
+        "y": 5.519087794932347
+      },
+      "prevControl": {
+        "x": 1.4921973789893526,
         "y": 5.519087794932347
       },
       "nextControl": null,
@@ -30,10 +46,92 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Spin Wheels"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 1.0
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Eject"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Lower Intake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Raise Intake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Spin Wheels"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 2.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 1.0
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Eject"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

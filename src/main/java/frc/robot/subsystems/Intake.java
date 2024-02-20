@@ -91,6 +91,7 @@ public class Intake extends SubsystemBase {
 
   public Command lowerIntake() {
     return runOnce(() -> {
+      intakeArrived = false;
       outtaking = false;
       intakeDesiredOut = true;
       intaking = true;
@@ -99,6 +100,7 @@ public class Intake extends SubsystemBase {
 
   public Command raiseIntake() {
     return runOnce(() -> {
+      intakeArrived = false;
       intaking = false;
       intakeDesiredOut = false;
     });
