@@ -83,13 +83,13 @@ public class Drivetrain extends SubsystemBase {
   private SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotSlewRate);
 
   private final SparkMaxSwerveModule m_FLModule = new SparkMaxSwerveModule(FrontLeft.kDrive, FrontLeft.kAzimuth,
-      FrontLeft.kAbsEnc, FrontLeft.kOffset);
+      FrontLeft.kAbsEnc);
   private final SparkMaxSwerveModule m_FRModule = new SparkMaxSwerveModule(FrontRight.kDrive, FrontRight.kAzimuth,
-      FrontRight.kAbsEnc, FrontRight.kOffset);
+      FrontRight.kAbsEnc);
   private final SparkMaxSwerveModule m_RLModule = new SparkMaxSwerveModule(RearLeft.kDrive, RearLeft.kAzimuth,
-      RearLeft.kAbsEnc, RearLeft.kOffset);
+      RearLeft.kAbsEnc);
   private final SparkMaxSwerveModule m_RRModule = new SparkMaxSwerveModule(RearRight.kDrive, RearRight.kAzimuth,
-      RearRight.kAbsEnc, RearRight.kOffset);
+      RearRight.kAbsEnc);
 
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
@@ -127,7 +127,6 @@ public class Drivetrain extends SubsystemBase {
     m_keepAngleTimer.reset();
     m_keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
-    ahrs.reset();
     m_odometry.resetPosition(getGyro(), getModulePositions(), new Pose2d());
 
     // Configure the AutoBuilder last
@@ -206,13 +205,6 @@ public class Drivetrain extends SubsystemBase {
     } else {
       setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
     }
-    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle() * 180 / Math.PI);
-    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle() * 180 / Math.PI);
-
-    SmartDashboard.putNumber("Front Left Ref", m_FLModule.getReferenceAngle() * 180 / Math.PI);
-    SmartDashboard.putNumber("Front Right Ref", m_FRModule.getReferenceAngle() * 180 / Math.PI);
-    SmartDashboard.putNumber("Rear Left Ref", m_RLModule.getReferenceAngle() * 180 / Math.PI);
-    SmartDashboard.putNumber("Rear Right Ref", m_RRModule.getReferenceAngle() * 180 / Math.PI);
 
     double[] states = new double[8];
     for (int i = 0; i < m_desStates.length; i++) {
@@ -237,6 +229,24 @@ public class Drivetrain extends SubsystemBase {
     getPose();
   }
 
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle() * 180 / Math.PI);
+
+    SmartDashboard.putNumber("Front Left Ref", m_FLModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Ref", m_FRModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Ref", m_RLModule.getReferenceAngle() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Ref", m_RRModule.getReferenceAngle() * 180 / Math.PI);
+
+    SmartDashboard.putNumber("Front Left Abs", m_FLModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Abs", m_FRModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Abs", m_RLModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Abs", m_RRModule.getAbsEncoder() * 180 / Math.PI);
+  }
+
   /**
    * Sets the swerve ModuleStates.
    *
@@ -248,6 +258,13 @@ public class Drivetrain extends SubsystemBase {
     m_FRModule.setDesiredState(desiredStates[1]);
     m_RLModule.setDesiredState(desiredStates[2]);
     m_RRModule.setDesiredState(desiredStates[3]);
+  }
+
+  public void resetWheels() {
+    m_FLModule.resetAzimuth();
+    m_FRModule.resetAzimuth();
+    m_RLModule.resetAzimuth();
+    m_RRModule.resetAzimuth();
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
@@ -301,14 +318,15 @@ public class Drivetrain extends SubsystemBase {
    */
   public void updateOdometry() {
     m_odometry.update(getGyro(), getModulePositions());
-    Optional<EstimatedRobotPose> result = Photonvision.instance.getEstimatedGlobalPose();
-    if (result.isPresent()) {
-      EstimatedRobotPose pose = result.get();
-      addVisionMeasurement(
-          pose.estimatedPose.toPose2d(),
-          pose.timestampSeconds,
-          Photonvision.instance.getEstimationStdDevs(pose.estimatedPose.toPose2d()));
-    }
+    // Optional<EstimatedRobotPose> result =
+    // Photonvision.instance.getEstimatedGlobalPose();
+    // if (result.isPresent()) {
+    // EstimatedRobotPose pose = result.get();
+    // addVisionMeasurement(
+    // pose.estimatedPose.toPose2d(),
+    // pose.timestampSeconds,
+    // Photonvision.instance.getEstimationStdDevs(pose.estimatedPose.toPose2d()));
+    // }
     m_field.setRobotPose(m_odometry.getPoseMeters());
     SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
   }
@@ -323,7 +341,7 @@ public class Drivetrain extends SubsystemBase {
    * @return Rotation2d object containing Gyro angle
    */
   public Rotation2d getGyro() {
-    return Robot.isSimulation() ? simOdometryPose.getRotation() : ahrs.getRotation2d().times(-1);
+    return ahrs.getRotation2d().times(-1);
   }
 
   /**

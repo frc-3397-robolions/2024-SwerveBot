@@ -101,7 +101,7 @@ public final class Constants {
     public static final class FrontLeft {
       public static final int kDrive = 3;
       public static final int kAzimuth = 4;
-      public static final int kAbsEnc = 1;
+      public static final int kAbsEnc = 24;
       public static final double kOffset = -2.9630;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
@@ -109,7 +109,7 @@ public final class Constants {
     public static final class FrontRight {
       public static final int kDrive = 1;
       public static final int kAzimuth = 2;
-      public static final int kAbsEnc = 2;
+      public static final int kAbsEnc = 23;
       public static final double kOffset = 1.2626;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, -kWheelBaseWidth / 2);
     }
@@ -117,7 +117,7 @@ public final class Constants {
     public static final class RearLeft {
       public static final int kDrive = 5;
       public static final int kAzimuth = 6;
-      public static final int kAbsEnc = 0;
+      public static final int kAbsEnc = 22;
       public static final double kOffset = -1.582;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
@@ -125,7 +125,7 @@ public final class Constants {
     public static final class RearRight {
       public static final int kDrive = 7;
       public static final int kAzimuth = 8;
-      public static final int kAbsEnc = 3;
+      public static final int kAbsEnc = 21;
       public static final double kOffset = -2.986;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, -kWheelBaseWidth / 2);
     }
@@ -150,8 +150,8 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kAngle = 0;
-    public static final int kDrive = 1;
+    public static final int kAngle = 40;
+    public static final int kDrive = 41;
     public static final double kP = 0.5;
     public static final double kI = 0;
     public static final double kD = 0;
@@ -167,8 +167,8 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final int kLeft = 0;
-    public static final int kRight = 1;
+    public static final int kLeft = 30;
+    public static final int kRight = 31;
     public static final double kPower = 0.2;
   }
 

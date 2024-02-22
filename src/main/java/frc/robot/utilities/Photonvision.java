@@ -52,8 +52,8 @@ public class Photonvision {
     private double lastEstTimestamp = 0;
 
     // Simulation
-    private PhotonCameraSim cameraSim;
-    private VisionSystemSim visionSim;
+    // private PhotonCameraSim cameraSim;
+    // private VisionSystemSim visionSim;
 
     public static Photonvision instance = new Photonvision();
 
@@ -66,30 +66,32 @@ public class Photonvision {
         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         // ----- Simulation
-        if (Robot.isSimulation()) {
-            // Create the vision system simulation which handles cameras and targets on the
-            // field.
-            visionSim = new VisionSystemSim("main");
-            // Add all the AprilTags inside the tag layout as visible targets to this
-            // simulated field.
-            visionSim.addAprilTags(kTagLayout);
-            // Create simulated camera properties. These can be set to mimic your actual
-            // camera.
-            var cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
-            cameraProp.setCalibError(0.35, 0.10);
-            cameraProp.setFPS(15);
-            cameraProp.setAvgLatencyMs(50);
-            cameraProp.setLatencyStdDevMs(15);
-            // Create a PhotonCameraSim which will update the linked PhotonCamera's values
-            // with visible
-            // targets.
-            cameraSim = new PhotonCameraSim(shooterCam, cameraProp);
-            // Add the simulated camera to view the targets on this simulated field.
-            visionSim.addCamera(cameraSim, kRobotToShooterCam);
+        // if (Robot.isSimulation()) {
+        // // Create the vision system simulation which handles cameras and targets on
+        // the
+        // // field.
+        // visionSim = new VisionSystemSim("main");
+        // // Add all the AprilTags inside the tag layout as visible targets to this
+        // // simulated field.
+        // visionSim.addAprilTags(kTagLayout);
+        // // Create simulated camera properties. These can be set to mimic your actual
+        // // camera.
+        // var cameraProp = new SimCameraProperties();
+        // cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+        // cameraProp.setCalibError(0.35, 0.10);
+        // cameraProp.setFPS(15);
+        // cameraProp.setAvgLatencyMs(50);
+        // cameraProp.setLatencyStdDevMs(15);
+        // // Create a PhotonCameraSim which will update the linked PhotonCamera's
+        // values
+        // // with visible
+        // // targets.
+        // cameraSim = new PhotonCameraSim(shooterCam, cameraProp);
+        // // Add the simulated camera to view the targets on this simulated field.
+        // visionSim.addCamera(cameraSim, kRobotToShooterCam);
 
-            cameraSim.enableDrawWireframe(true);
-        }
+        // cameraSim.enableDrawWireframe(true);
+        // }
     }
 
     public PhotonPipelineResult getLatestIntakeResult() {
@@ -113,16 +115,16 @@ public class Photonvision {
         var visionEst = photonEstimator.update();
         double latestTimestamp = intakeCam.getLatestResult().getTimestampSeconds();
         boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-        if (Robot.isSimulation()) {
-            visionEst.ifPresentOrElse(
-                    est -> getSimDebugField()
-                            .getObject("VisionEstimation")
-                            .setPose(est.estimatedPose.toPose2d()),
-                    () -> {
-                        if (newResult)
-                            getSimDebugField().getObject("VisionEstimation").setPoses();
-                    });
-        }
+        // if (Robot.isSimulation()) {
+        // visionEst.ifPresentOrElse(
+        // est -> getSimDebugField()
+        // .getObject("VisionEstimation")
+        // .setPose(est.estimatedPose.toPose2d()),
+        // () -> {
+        // if (newResult)
+        // getSimDebugField().getObject("VisionEstimation").setPoses();
+        // });
+        // }
         if (newResult)
             lastEstTimestamp = latestTimestamp;
         return visionEst;
@@ -166,20 +168,20 @@ public class Photonvision {
 
     // ----- Simulation
 
-    public void simulationPeriodic(Pose2d robotSimPose) {
-        visionSim.update(robotSimPose);
-    }
+    // public void simulationPeriodic(Pose2d robotSimPose) {
+    // visionSim.update(robotSimPose);
+    // }
 
     /** Reset pose history of the robot in the vision system simulation. */
-    public void resetSimPose(Pose2d pose) {
-        if (Robot.isSimulation())
-            visionSim.resetRobotPose(pose);
-    }
+    // public void resetSimPose(Pose2d pose) {
+    // if (Robot.isSimulation())
+    // visionSim.resetRobotPose(pose);
+    // }
 
     /** A Field2d for visualizing our robot and objects on the field. */
-    public Field2d getSimDebugField() {
-        if (!Robot.isSimulation())
-            return null;
-        return visionSim.getDebugField();
-    }
+    // public Field2d getSimDebugField() {
+    // if (!Robot.isSimulation())
+    // return null;
+    // return visionSim.getDebugField();
+    // }
 }

@@ -34,9 +34,8 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     private final RelativeEncoder m_driveEnc;
     private EncoderSim m_azimuthEncSim;
     private EncoderSim m_driveEncSim;
-    // private final CANcoder m_absEncoder;
+    private final CANcoder m_absEncoder;
     private CANcoderSimState m_absEncoderSimState;
-    private final double m_offset;
     private final SparkPIDController m_drivePID;
     private final SparkPIDController m_azimuthPID;
     private final SimpleMotorFeedforward m_driveFF;
@@ -50,7 +49,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
      * @param absEnc  The analog encoder port for the absolute encoder.
      * @param offset  The offset for the analog encoder.
      */
-    public SparkMaxSwerveModule(int driveID, int azimuthID, int absEncID, double offset) {
+    public SparkMaxSwerveModule(int driveID, int azimuthID, int absEncID) {
         m_driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
         m_driveMotor.setSmartCurrentLimit(CurrentLimit.kDrive);
         m_driveMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
@@ -85,10 +84,9 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_azimuthPID = m_azimuthMotor.getPIDController();
         m_azimuthPID.setP(Azimuth.kp);
 
-        // m_absEncoder = new CANcoder(absEncID);
-        m_offset = offset;
+        m_absEncoder = new CANcoder(absEncID);
 
-        // m_azimuthEnc.setPosition(0);
+        m_azimuthEnc.setPosition(getAbsEncoder());
 
         m_azimuthMotor.burnFlash();
     }
@@ -110,6 +108,10 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         return new SwerveModulePosition(m_driveEnc.getPosition(), new Rotation2d(getStateAngle()));
     }
 
+    public void resetAzimuth() {
+        m_azimuthEnc.setPosition(getAbsEncoder());
+    }
+
     /**
      * Sets the desired state for the module.
      *
@@ -128,7 +130,6 @@ public class SparkMaxSwerveModule extends SubsystemBase {
 
         m_drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity, 0,
                 driveFF * GlobalConstants.kVoltCompensation);
-        // setReferenceAngle(Math.PI / 2);
         setReferenceAngle(state.angle.getRadians());
 
     }
@@ -178,10 +179,10 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         return motorAngleRadians;
     }
 
-    // public double getAbsEncoder() {
-    // double absEnc = m_absEncoder.getPosition().getValueAsDouble();
-    // return absEnc;
-    // }
+    public double getAbsEncoder() {
+        double absEnc = m_absEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
+        return absEnc;
+    }
 
     public void enableBrake(boolean brake) {
         if (brake) {
