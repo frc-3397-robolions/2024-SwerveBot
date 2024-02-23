@@ -398,6 +398,10 @@ public class Drivetrain extends SubsystemBase {
     m_poseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
+  public void resetGyro() {
+    ahrs.reset();
+  }
+
   /**
    * Converts the 4 swerve module states into a chassisSpeed by making use of the
    * swerve drive kinematics.

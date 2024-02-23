@@ -87,6 +87,7 @@ public class RobotContainer {
     // cancelling on release.
     m_driverController.b().whileTrue(m_drivetrain.goToOrigin());
     m_driverController.a().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetWheels()));
+    m_driverController.start().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetGyro()));
   }
 
   /**
