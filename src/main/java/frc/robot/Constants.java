@@ -150,12 +150,12 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kAngle = 40;
-    public static final int kDrive = 41;
-    public static final double kP = 0.5;
+    public static final int kAngle = 11;
+    public static final int kDrive = 9;
+    public static final double kP = 0.1;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kFF = 0;
+    public static final double kFF = 0.002;
     public static final double kGearRatio = 100;
     public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
     public static Map<Boolean, Double> intakeStates = Map.of(false, 0.0, true, 0.75);
