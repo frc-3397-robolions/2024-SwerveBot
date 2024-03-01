@@ -51,6 +51,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
      */
     public SparkMaxSwerveModule(int driveID, int azimuthID, int absEncID) {
         m_driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
+        m_driveMotor.restoreFactoryDefaults();
         m_driveMotor.setSmartCurrentLimit(CurrentLimit.kDrive);
         m_driveMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_driveMotor.setInverted(true);
@@ -70,6 +71,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_driveMotor.burnFlash();
 
         m_azimuthMotor = new CANSparkMax(azimuthID, MotorType.kBrushless);
+        m_azimuthMotor.restoreFactoryDefaults();
         m_azimuthMotor.setSmartCurrentLimit(CurrentLimit.kAzimuth);
         m_azimuthMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_azimuthMotor.setInverted(false);

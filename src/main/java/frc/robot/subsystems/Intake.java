@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -27,6 +28,8 @@ public class Intake extends SubsystemBase {
   private final RelativeEncoder angleEncoder;
   private final SparkPIDController anglePID;
   private final TrapezoidProfile profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(kMaxVel, kMaxAccel));
+  private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private boolean intakeDesiredOut = false;
   private boolean intakeArrived = false;
   private boolean intaking = false;
@@ -38,12 +41,13 @@ public class Intake extends SubsystemBase {
     angleMotor.setSmartCurrentLimit(CurrentLimit.kIntakeAngle);
     angleMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
     angleMotor.setInverted(true);
+    angleMotor.setSoftLimit(SoftLimitDirection.kForward, 0);
+    angleMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Math.PI / 2);
     angleMotor.setIdleMode(IdleMode.kBrake);
 
     angleEncoder = angleMotor.getEncoder();
     angleEncoder.setPositionConversionFactor(kAnglePositionFactor);
     angleEncoder.setVelocityConversionFactor(kAnglePositionFactor);
-    angleEncoder.setInverted(true);
     anglePID = angleMotor.getPIDController();
     anglePID.setP(kP);
     anglePID.setI(kI);
@@ -61,8 +65,10 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_goal = new TrapezoidProfile.State(intakeStates.get(intakeDesiredOut).floatValue(), 0);
+    m_setpoint = profile.calculate(0.02, m_setpoint, m_goal);
     // Set the PID Controller to the corresponding angle for in/out
-    anglePID.setReference(intakeStates.get(intakeDesiredOut), ControlType.kPosition);
+    anglePID.setReference(m_setpoint.position, ControlType.kPosition);
 
     // If the intake is within tolerance of it's desired angle, set this variable to
     // true so other files can act
@@ -91,6 +97,12 @@ public class Intake extends SubsystemBase {
     return intakeArrived;
   }
 
+  public Command zeroIntake() {
+    return runOnce(() -> {
+      angleEncoder.setPosition(0);
+    });
+  }
+
   public Command lowerIntake() {
     return runOnce(() -> {
       intakeArrived = false;
@@ -116,5 +128,31 @@ public class Intake extends SubsystemBase {
         () -> {
           outtaking = false;
         });
+  }
+
+  public Command test1() {
+    return runOnce(() -> {
+      intakeDesiredOut = true;
+    });
+  }
+
+  public Command test2() {
+    return runOnce(() -> {
+      intakeDesiredOut = false;
+    });
+  }
+
+  public Command intake() {
+    return runOnce(() -> {
+      outtaking = false;
+      intaking = true;
+    });
+  }
+
+  public Command outtake() {
+    return runOnce(() -> {
+      outtaking = true;
+      intaking = false;
+    });
   }
 }
