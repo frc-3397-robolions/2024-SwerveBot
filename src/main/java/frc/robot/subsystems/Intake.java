@@ -40,10 +40,10 @@ public class Intake extends SubsystemBase {
     angleMotor = new CANSparkMax(kAngle, CANSparkMax.MotorType.kBrushless);
     angleMotor.setSmartCurrentLimit(CurrentLimit.kIntakeAngle);
     angleMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
-    angleMotor.setInverted(true);
-    angleMotor.setSoftLimit(SoftLimitDirection.kForward, 0);
-    angleMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Math.PI / 2);
-    angleMotor.setIdleMode(IdleMode.kBrake);
+    angleMotor.setInverted(false);
+    angleMotor.setSoftLimit(SoftLimitDirection.kForward, intakeStates.get(true).floatValue());
+    angleMotor.setSoftLimit(SoftLimitDirection.kReverse, intakeStates.get(false).floatValue());
+    angleMotor.setIdleMode(IdleMode.kCoast);
 
     angleEncoder = angleMotor.getEncoder();
     angleEncoder.setPositionConversionFactor(kAnglePositionFactor);
@@ -145,13 +145,13 @@ public class Intake extends SubsystemBase {
   public Command intake() {
     return runOnce(() -> {
       outtaking = false;
-      intaking = true;
+      intaking = !intaking;
     });
   }
 
   public Command outtake() {
     return runOnce(() -> {
-      outtaking = true;
+      outtaking = !outtaking;
       intaking = false;
     });
   }

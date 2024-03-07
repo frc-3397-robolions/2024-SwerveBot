@@ -88,6 +88,7 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_drivetrain.goToOrigin());
     m_driverController.a().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetWheels()));
     m_driverController.start().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetGyro()));
+    m_driverController.back().onTrue(m_intake.zeroIntake());
     m_driverController.y().onTrue(m_intake.test1());
     m_driverController.x().onTrue(m_intake.test2());
     m_driverController.rightBumper().onTrue(m_intake.outtake());

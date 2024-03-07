@@ -158,18 +158,20 @@ public final class Constants {
     public static final double kFF = 0;
     public static final double kGearRatio = 100;
     public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
-    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.05, true, Math.PI);
+    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.01, true, 3.2);
     public static final double kPositionTolerance = 0.04;
     public static final double kIntakePower = 0.5;
-    public static final double kOuttakePower = 0.5;
-    public static final double kMaxVel = 5;
-    public static final double kMaxAccel = 4;
+    public static final double kOuttakePower = -0.5;
+    public static final double kMaxVel = 7;
+    public static final double kMaxAccel = 5;
   }
 
   public static final class ShooterConstants {
     public static final int kLeft = 30;
     public static final int kRight = 31;
     public static final double kPower = 0.2;
+    public static final double kVelocityFactor = 4 * Math.PI;
+    public static final double kv = 1.0 / (5820 * kVelocityFactor);
   }
 
   public static final class GlobalConstants {
