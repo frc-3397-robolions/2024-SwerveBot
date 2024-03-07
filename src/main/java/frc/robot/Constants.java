@@ -160,8 +160,8 @@ public final class Constants {
     public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
     public static Map<Boolean, Double> intakeStates = Map.of(false, 0.01, true, 3.2);
     public static final double kPositionTolerance = 0.04;
-    public static final double kIntakePower = 0.5;
-    public static final double kOuttakePower = -0.5;
+    public static final double kIntakePower = 0.75;
+    public static final double kOuttakePower = -0.75;
     public static final double kMaxVel = 7;
     public static final double kMaxAccel = 5;
   }
