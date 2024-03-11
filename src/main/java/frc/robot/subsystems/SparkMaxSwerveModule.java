@@ -183,6 +183,10 @@ public class SparkMaxSwerveModule extends SubsystemBase {
 
     public double getAbsEncoder() {
         double absEnc = m_absEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
+        absEnc %= 2.0 * Math.PI;
+        if (absEnc < 0.0) {
+            absEnc += 2.0 * Math.PI;
+        }
         return absEnc;
     }
 
