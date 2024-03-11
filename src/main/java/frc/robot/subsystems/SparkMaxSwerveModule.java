@@ -75,7 +75,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_azimuthMotor.setSmartCurrentLimit(CurrentLimit.kAzimuth);
         m_azimuthMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_azimuthMotor.setInverted(false);
-        m_azimuthMotor.setIdleMode(IdleMode.kCoast);
+        m_azimuthMotor.setIdleMode(IdleMode.kBrake);
 
         m_azimuthEnc = m_azimuthMotor.getEncoder();
         m_azimuthEnc.setPositionConversionFactor(Azimuth.kPositionFactor);
@@ -88,7 +88,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
 
         m_absEncoder = new CANcoder(absEncID);
 
-        m_azimuthEnc.setPosition(getAbsEncoder());
+        resetAzimuth();
 
         m_azimuthMotor.burnFlash();
     }
