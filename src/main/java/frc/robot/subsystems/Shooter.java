@@ -38,10 +38,10 @@ public class Shooter extends SubsystemBase {
     leftMotor.setInverted(true);
     leftMotor.setIdleMode(IdleMode.kCoast);
     leftEncoder = leftMotor.getEncoder();
-    leftEncoder.setVelocityConversionFactor(1);
-    leftPID = leftMotor.getPIDController();
-    leftPID.setP(1);
-    leftPID.setFF(1);
+    leftEncoder.setVelocityConversionFactor(kVelocityFactor);
+    // leftPID = leftMotor.getPIDController();
+    // leftPID.setP(0.1);
+    // leftPID.setFF(0.1);
 
     rightMotor = new CANSparkMax(kRight, MotorType.kBrushless);
     rightMotor.setSmartCurrentLimit(CurrentLimit.kShooter);
@@ -49,10 +49,10 @@ public class Shooter extends SubsystemBase {
     rightMotor.setInverted(false);
     rightMotor.setIdleMode(IdleMode.kCoast);
     rightEncoder = rightMotor.getEncoder();
-    rightEncoder.setVelocityConversionFactor(4);
-    rightPID = rightMotor.getPIDController();
-    rightPID.setP(1);
-    rightPID.setFF(1);
+    rightEncoder.setVelocityConversionFactor(kVelocityFactor);
+    // rightPID = rightMotor.getPIDController();
+    // rightPID.setP(0.1);
+    // rightPID.setFF(0.1);
 
     shooterFF = new SimpleMotorFeedforward(0.01, kv);
   }
@@ -60,16 +60,24 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Shooter Speed", leftMotor.get());
+    SmartDashboard.putNumber("Desired Shooter Speed", desiredVelocity);
+    SmartDashboard.putNumber("Shooter Speed", leftEncoder.getVelocity());
     double ff = shooterFF.calculate(desiredVelocity);
-    leftPID.setReference(desiredVelocity, ControlType.kVelocity, 0, ff * GlobalConstants.kVoltCompensation);
-    rightPID.setReference(desiredVelocity, ControlType.kVelocity, 0, ff * GlobalConstants.kVoltCompensation);
+    // leftPID.setReference(desiredVelocity, ControlType.kVelocity, 0);
+    // rightPID.setReference(desiredVelocity, ControlType.kVelocity, 0);
   }
 
-  public Command shoot(double power) {
+  // public Command shoot(double percent) {
+  // return runEnd(() -> {
+  // desiredVelocity = kNEOMaxSpeed * percent;
+  // }, () -> {
+  // desiredVelocity = 0;
+  // });
+  // }
+  public Command shoot(double percent) {
     return runEnd(() -> {
-      leftMotor.set(power);
-      rightMotor.set(power);
+      leftMotor.set(0.3);
+      rightMotor.set(0.3);
     }, () -> {
       leftMotor.set(0);
       rightMotor.set(0);

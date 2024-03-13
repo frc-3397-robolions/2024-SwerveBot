@@ -167,11 +167,12 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final int kLeft = 30;
-    public static final int kRight = 31;
+    public static final int kLeft = 12;
+    public static final int kRight = 10;
     public static final double kPower = 0.2;
-    public static final double kVelocityFactor = 4 * Math.PI;
-    public static final double kv = 1.0 / (5820 * kVelocityFactor);
+    public static final double kVelocityFactor = 60;
+    public static final double kNEOMaxSpeed = 5820 / 60;
+    public static final double kv = 1.0 / (kNEOMaxSpeed * kVelocityFactor);
   }
 
   public static final class GlobalConstants {
