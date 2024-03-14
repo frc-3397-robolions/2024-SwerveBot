@@ -102,7 +102,6 @@ public final class Constants {
       public static final int kDrive = 3;
       public static final int kAzimuth = 4;
       public static final int kAbsEnc = 21;
-      public static final double kOffset = -2.9630;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
 
@@ -110,7 +109,6 @@ public final class Constants {
       public static final int kDrive = 1;
       public static final int kAzimuth = 2;
       public static final int kAbsEnc = 22;
-      public static final double kOffset = 1.2626;
       public static final Translation2d kLocation = new Translation2d(kWheelBaseLength / 2, -kWheelBaseWidth / 2);
     }
 
@@ -118,7 +116,6 @@ public final class Constants {
       public static final int kDrive = 5;
       public static final int kAzimuth = 6;
       public static final int kAbsEnc = 23;
-      public static final double kOffset = -1.582;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, kWheelBaseWidth / 2);
     }
 
@@ -126,7 +123,6 @@ public final class Constants {
       public static final int kDrive = 7;
       public static final int kAzimuth = 8;
       public static final int kAbsEnc = 24;
-      public static final double kOffset = -2.986;
       public static final Translation2d kLocation = new Translation2d(-kWheelBaseLength / 2, -kWheelBaseWidth / 2);
     }
 
@@ -158,10 +154,10 @@ public final class Constants {
     public static final double kFF = 0;
     public static final double kGearRatio = 100;
     public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
-    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.01, true, 3.2);
+    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.01, true, 3.4);
     public static final double kPositionTolerance = 0.04;
     public static final double kIntakePower = 0.75;
-    public static final double kOuttakePower = -0.75;
+    public static final double kOuttakePower = -1;
     public static final double kMaxVel = 7;
     public static final double kMaxAccel = 5;
   }
@@ -169,7 +165,7 @@ public final class Constants {
   public static final class ShooterConstants {
     public static final int kLeft = 12;
     public static final int kRight = 10;
-    public static final double kPower = 0.2;
+    public static final double kPower = 0.75;
     public static final double kVelocityFactor = 60;
     public static final double kNEOMaxSpeed = 5820 / 60;
     public static final double kv = 1.0 / (kNEOMaxSpeed * kVelocityFactor);

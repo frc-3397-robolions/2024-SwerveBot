@@ -245,6 +245,15 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Front Right Abs", m_FRModule.getAbsEncoder() * 180 / Math.PI);
     SmartDashboard.putNumber("Rear Left Abs", m_RLModule.getAbsEncoder() * 180 / Math.PI);
     SmartDashboard.putNumber("Rear Right Abs", m_RRModule.getAbsEncoder() * 180 / Math.PI);
+
+    SmartDashboard.putNumber("Front Left Diff",
+        m_FLModule.getStateAngle() * 180 / Math.PI - m_FLModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Front Right Diff",
+        m_FRModule.getStateAngle() * 180 / Math.PI - m_FRModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Left Diff",
+        m_RLModule.getStateAngle() * 180 / Math.PI - m_RLModule.getAbsEncoder() * 180 / Math.PI);
+    SmartDashboard.putNumber("Rear Right Diff",
+        m_RRModule.getStateAngle() * 180 / Math.PI - m_RRModule.getAbsEncoder() * 180 / Math.PI);
   }
 
   /**

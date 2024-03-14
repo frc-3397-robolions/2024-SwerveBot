@@ -40,6 +40,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     private final SparkPIDController m_azimuthPID;
     private final SimpleMotorFeedforward m_driveFF;
     private double m_referenceAngleRadians = 0;
+    private double absEncPos = 0;
 
     /**
      * Create a new FRC 1706 SparkMaxSwerveModule Object
@@ -88,8 +89,6 @@ public class SparkMaxSwerveModule extends SubsystemBase {
 
         m_absEncoder = new CANcoder(absEncID);
 
-        resetAzimuth();
-
         m_azimuthMotor.burnFlash();
     }
 
@@ -111,7 +110,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     }
 
     public void resetAzimuth() {
-        m_azimuthEnc.setPosition(getAbsEncoder());
+        m_azimuthEnc.setPosition(0);
     }
 
     /**
@@ -120,6 +119,8 @@ public class SparkMaxSwerveModule extends SubsystemBase {
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
+        // Reset the relative to the absolute encoder to account for value drift.
+        // Attempt to find source later.
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getStateAngle()));
         // Calculate the drive output from the drive PID controller.
@@ -133,7 +134,6 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity, 0,
                 driveFF * GlobalConstants.kVoltCompensation);
         setReferenceAngle(state.angle.getRadians());
-
     }
 
     /**
@@ -182,12 +182,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     }
 
     public double getAbsEncoder() {
-        double absEnc = m_absEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
-        absEnc %= 2.0 * Math.PI;
-        if (absEnc < 0.0) {
-            absEnc += 2.0 * Math.PI;
-        }
-        return absEnc;
+        return absEncPos;
     }
 
     public void enableBrake(boolean brake) {
@@ -201,6 +196,11 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     public void stop() {
         m_driveMotor.set(0.0);
         m_azimuthMotor.set(0.0);
+    }
+
+    @Override
+    public void periodic() {
+        absEncPos = m_absEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
     }
 
 }

@@ -76,8 +76,8 @@ public class Shooter extends SubsystemBase {
   // }
   public Command shoot(double percent) {
     return runEnd(() -> {
-      leftMotor.set(0.3);
-      rightMotor.set(0.3);
+      leftMotor.set(kPower);
+      rightMotor.set(kPower);
     }, () -> {
       leftMotor.set(0);
       rightMotor.set(0);

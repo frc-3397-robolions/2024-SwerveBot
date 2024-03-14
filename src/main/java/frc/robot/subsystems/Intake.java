@@ -60,7 +60,7 @@ public class Intake extends SubsystemBase {
     driveMotor.setSmartCurrentLimit(CurrentLimit.kIntakeWheels);
     driveMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
     driveMotor.setInverted(false);
-    driveMotor.setIdleMode(IdleMode.kBrake);
+    driveMotor.setIdleMode(IdleMode.kCoast);
   }
 
   @Override

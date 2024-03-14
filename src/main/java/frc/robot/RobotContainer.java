@@ -93,7 +93,7 @@ public class RobotContainer {
     m_driverController.x().onTrue(m_intake.test2());
     m_driverController.rightBumper().onTrue(m_intake.outtake());
     m_driverController.leftBumper().onTrue(m_intake.intake());
-    m_driverController.rightTrigger(0.1).whileTrue(m_shooter.shoot(0.2));
+    m_driverController.rightTrigger(0.1).whileTrue(m_shooter.shoot(0.75));
   }
 
   /**
