@@ -103,23 +103,6 @@ public class Intake extends SubsystemBase {
     });
   }
 
-  public Command lowerIntake() {
-    return runOnce(() -> {
-      intakeArrived = false;
-      intakeDesiredOut = true;
-      outtaking = false;
-      intaking = true;
-    });
-  }
-
-  public Command raiseIntake() {
-    return runOnce(() -> {
-      intakeArrived = false;
-      intakeDesiredOut = false;
-      intaking = false;
-    });
-  }
-
   public Command eject() {
     return runEnd(
         () -> {
@@ -130,26 +113,26 @@ public class Intake extends SubsystemBase {
         });
   }
 
-  public Command test1() {
+  public Command moveIntakeOut() {
     return runOnce(() -> {
       intakeDesiredOut = true;
     });
   }
 
-  public Command test2() {
+  public Command moveIntakeIn() {
     return runOnce(() -> {
       intakeDesiredOut = false;
     });
   }
 
-  public Command intake() {
+  public Command toggleIntaking() {
     return runOnce(() -> {
       outtaking = false;
       intaking = !intaking;
     });
   }
 
-  public Command outtake() {
+  public Command toggleOuttaking() {
     return runOnce(() -> {
       outtaking = !outtaking;
       intaking = false;

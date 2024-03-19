@@ -20,6 +20,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -44,6 +45,8 @@ public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
 
+  private final CommandJoystick m_operatorController = new CommandJoystick(OperatorConstants.kOperatorControllerPort);
+
   private final DriveRobot m_drive = new DriveRobot(m_drivetrain, m_driverController);
 
   /**
@@ -52,8 +55,8 @@ public class RobotContainer {
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(m_drive);
 
-    NamedCommands.registerCommand("Lower Intake", m_intake.lowerIntake().until(m_intake::getIntakeArrived));
-    NamedCommands.registerCommand("Raise Intake", m_intake.raiseIntake().until(m_intake::getIntakeArrived));
+    NamedCommands.registerCommand("Lower Intake", m_intake.moveIntakeOut().until(m_intake::getIntakeArrived));
+    NamedCommands.registerCommand("Raise Intake", m_intake.moveIntakeIn().until(m_intake::getIntakeArrived));
     NamedCommands.registerCommand("Spin Wheels", m_shooter.shoot(0.5));
     NamedCommands.registerCommand("Eject Note", m_intake.eject().withTimeout(1));
 
@@ -89,11 +92,12 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetWheels()));
     m_driverController.start().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetGyro()));
     m_driverController.back().onTrue(m_intake.zeroIntake());
-    m_driverController.y().onTrue(m_intake.test1());
-    m_driverController.x().onTrue(m_intake.test2());
-    m_driverController.rightBumper().onTrue(m_intake.outtake());
-    m_driverController.leftBumper().onTrue(m_intake.intake());
-    m_driverController.rightTrigger(0.1).whileTrue(m_shooter.shoot(0.75));
+    m_operatorController.button(3).onTrue(m_intake.moveIntakeOut());
+    m_operatorController.button(4).onTrue(m_intake.moveIntakeIn());
+    m_operatorController.button(1).onTrue(m_intake.toggleIntaking());
+    m_operatorController.button(2).onTrue(m_intake.toggleOuttaking());
+    m_operatorController.button(6).whileTrue(m_shooter.shoot(0.75));
+    m_operatorController.button(5).whileTrue(m_shooter.shoot(1));
   }
 
   /**

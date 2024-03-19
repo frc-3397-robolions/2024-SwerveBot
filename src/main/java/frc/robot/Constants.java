@@ -62,6 +62,7 @@ public final class Constants {
     public static final double kDeadband = 0.08;
     public static final double kCubic = 0.95;
     public static final double kLinear = 0.05;
+    public static final int kOperatorControllerPort = 1;
   }
 
   public static final class CurrentLimit {

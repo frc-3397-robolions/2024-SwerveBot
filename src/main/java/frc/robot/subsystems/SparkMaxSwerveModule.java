@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.CANSparkLowLevel;
@@ -90,6 +92,8 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_absEncoder = new CANcoder(absEncID);
 
         m_azimuthMotor.burnFlash();
+
+        // resetAzimuth();
     }
 
     /**
@@ -182,7 +186,16 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     }
 
     public double getAbsEncoder() {
-        return absEncPos;
+        StatusSignal<Double> angle = m_absEncoder.getAbsolutePosition();
+        for (int i = 0; i < 5; i++) {
+            if (angle.getStatus() == StatusCode.OK) {
+                break;
+            }
+            angle = angle.waitForUpdate(0.02);
+        }
+
+        return angle.getValue() * 2 * Math.PI;
+
     }
 
     public void enableBrake(boolean brake) {
