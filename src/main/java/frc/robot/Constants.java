@@ -89,7 +89,7 @@ public final class Constants {
       public static final double kGearRatio = 150 / 7;
       public static final double kPositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
       public static final double kVelocityFactor = kPositionFactor / 60.0;
-      public static final double kp = 1.00;
+      public static final double kp = 3.00;
     }
 
   }

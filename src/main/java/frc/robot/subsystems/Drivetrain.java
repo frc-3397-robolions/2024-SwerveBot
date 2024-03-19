@@ -83,13 +83,13 @@ public class Drivetrain extends SubsystemBase {
   private SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotSlewRate);
 
   private final SparkMaxSwerveModule m_FLModule = new SparkMaxSwerveModule(FrontLeft.kDrive, FrontLeft.kAzimuth,
-      FrontLeft.kAbsEnc);
+      FrontLeft.kAbsEnc, 0);
   private final SparkMaxSwerveModule m_FRModule = new SparkMaxSwerveModule(FrontRight.kDrive, FrontRight.kAzimuth,
-      FrontRight.kAbsEnc);
+      FrontRight.kAbsEnc, 0);
   private final SparkMaxSwerveModule m_RLModule = new SparkMaxSwerveModule(RearLeft.kDrive, RearLeft.kAzimuth,
-      RearLeft.kAbsEnc);
+      RearLeft.kAbsEnc, -Math.PI / 2);
   private final SparkMaxSwerveModule m_RRModule = new SparkMaxSwerveModule(RearRight.kDrive, RearRight.kAzimuth,
-      RearRight.kAbsEnc);
+      RearRight.kAbsEnc, -Math.PI / 2);
 
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 

@@ -103,14 +103,14 @@ public class Intake extends SubsystemBase {
     });
   }
 
-  public Command eject() {
+  public Command eject(double time) {
     return runEnd(
         () -> {
           outtaking = true;
         },
         () -> {
           outtaking = false;
-        });
+        }).withTimeout(time);
   }
 
   public Command moveIntakeOut() {

@@ -42,7 +42,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     private final SparkPIDController m_azimuthPID;
     private final SimpleMotorFeedforward m_driveFF;
     private double m_referenceAngleRadians = 0;
-    private double absEncPos = 0;
+    private double m_offset;
 
     /**
      * Create a new FRC 1706 SparkMaxSwerveModule Object
@@ -52,7 +52,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
      * @param absEnc  The analog encoder port for the absolute encoder.
      * @param offset  The offset for the analog encoder.
      */
-    public SparkMaxSwerveModule(int driveID, int azimuthID, int absEncID) {
+    public SparkMaxSwerveModule(int driveID, int azimuthID, int absEncID, double offset) {
         m_driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
         m_driveMotor.restoreFactoryDefaults();
         m_driveMotor.setSmartCurrentLimit(CurrentLimit.kDrive);
@@ -92,8 +92,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
         m_absEncoder = new CANcoder(absEncID);
 
         m_azimuthMotor.burnFlash();
-
-        // resetAzimuth();
+        m_offset = offset;
     }
 
     /**
@@ -114,7 +113,7 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     }
 
     public void resetAzimuth() {
-        m_azimuthEnc.setPosition(0);
+        m_azimuthEnc.setPosition(getAbsEncoder());
     }
 
     /**
@@ -193,7 +192,6 @@ public class SparkMaxSwerveModule extends SubsystemBase {
             }
             angle = angle.waitForUpdate(0.02);
         }
-
         return angle.getValue() * 2 * Math.PI;
 
     }
@@ -209,11 +207,6 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     public void stop() {
         m_driveMotor.set(0.0);
         m_azimuthMotor.set(0.0);
-    }
-
-    @Override
-    public void periodic() {
-        absEncPos = m_absEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
     }
 
 }

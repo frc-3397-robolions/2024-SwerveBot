@@ -58,10 +58,11 @@ public class RobotContainer {
     NamedCommands.registerCommand("Lower Intake", m_intake.moveIntakeOut().until(m_intake::getIntakeArrived));
     NamedCommands.registerCommand("Raise Intake", m_intake.moveIntakeIn().until(m_intake::getIntakeArrived));
     NamedCommands.registerCommand("Spin Wheels", m_shooter.shoot(0.5));
-    NamedCommands.registerCommand("Eject Note", m_intake.eject().withTimeout(1));
+    NamedCommands.registerCommand("Eject Note", m_intake.eject(1));
 
     m_chooser = AutoBuilder.buildAutoChooser("1M Forward");
     SmartDashboard.putData("Auto Chooser", m_chooser);
+    // m_chooser.addOption("Single Note", m_shooter.autoShoot(5).alongWith());
     // Configure the trigger bindings
     configureBindings();
   }
@@ -89,7 +90,8 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_drivetrain.goToOrigin());
-    m_driverController.a().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetWheels()));
+    // m_driverController.a().onTrue(m_drivetrain.runOnce(() ->
+    // m_drivetrain.resetWheels()));
     m_driverController.start().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.resetGyro()));
     m_driverController.back().onTrue(m_intake.zeroIntake());
     m_operatorController.button(3).onTrue(m_intake.moveIntakeOut());
