@@ -38,7 +38,8 @@ public class Intake extends SubsystemBase {
   public Intake() {
     // The motor controlling the angle of the assembly
     angleMotor = new CANSparkMax(kAngle, CANSparkMax.MotorType.kBrushless);
-    angleMotor.setSmartCurrentLimit(CurrentLimit.kIntakeAngle);
+    angleMotor.restoreFactoryDefaults();
+    // angleMotor.setSmartCurrentLimit(CurrentLimit.kIntakeAngle);
     angleMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
     angleMotor.setInverted(false);
     angleMotor.setSoftLimit(SoftLimitDirection.kForward, intakeStates.get(true).floatValue());
@@ -91,6 +92,7 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putBoolean("Intake Arrived", intakeArrived);
     SmartDashboard.putBoolean("Intaking", intaking);
     SmartDashboard.putBoolean("Outtaking", outtaking);
+    SmartDashboard.putNumber("Intake Power", angleMotor.getAppliedOutput());
   }
 
   public boolean getIntakeArrived() {

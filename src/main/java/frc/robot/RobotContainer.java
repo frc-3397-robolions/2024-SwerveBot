@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +51,8 @@ public class RobotContainer {
 
   private final DriveRobot m_drive = new DriveRobot(m_drivetrain, m_driverController);
 
+  private final UsbCamera frontCamera;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -57,7 +61,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Lower Intake", m_intake.moveIntakeOut().until(m_intake::getIntakeArrived));
     NamedCommands.registerCommand("Raise Intake", m_intake.moveIntakeIn().until(m_intake::getIntakeArrived));
-    NamedCommands.registerCommand("Spin Wheels", m_shooter.shoot(0.5));
+    NamedCommands.registerCommand("Spin Wheels", m_shooter.autoShoot(10));
     NamedCommands.registerCommand("Eject Note", m_intake.eject(1));
 
     m_chooser = AutoBuilder.buildAutoChooser("1M Forward");
@@ -65,6 +69,7 @@ public class RobotContainer {
     // m_chooser.addOption("Single Note", m_shooter.autoShoot(5).alongWith());
     // Configure the trigger bindings
     configureBindings();
+    frontCamera = CameraServer.startAutomaticCapture();
   }
 
   /**

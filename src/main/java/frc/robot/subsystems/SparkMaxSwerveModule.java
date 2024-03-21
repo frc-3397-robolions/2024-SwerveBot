@@ -185,14 +185,8 @@ public class SparkMaxSwerveModule extends SubsystemBase {
     }
 
     public double getAbsEncoder() {
-        StatusSignal<Double> angle = m_absEncoder.getAbsolutePosition();
-        for (int i = 0; i < 5; i++) {
-            if (angle.getStatus() == StatusCode.OK) {
-                break;
-            }
-            angle = angle.waitForUpdate(0.02);
-        }
-        return angle.getValue() * 2 * Math.PI;
+
+        return 69;
 
     }
 

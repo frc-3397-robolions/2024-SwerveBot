@@ -28,7 +28,6 @@ public class Shooter extends SubsystemBase {
   private RelativeEncoder rightEncoder;
   private SparkPIDController leftPID;
   private SparkPIDController rightPID;
-  private SimpleMotorFeedforward shooterFF;
   private double desiredVelocity = 0;
 
   public Shooter() {
@@ -41,7 +40,8 @@ public class Shooter extends SubsystemBase {
     leftEncoder.setVelocityConversionFactor(1);
     leftPID = leftMotor.getPIDController();
     leftPID.setP(0);
-    leftPID.setFF(0.1);
+    leftPID.setFF(0.000175);
+    leftMotor.burnFlash();
 
     rightMotor = new CANSparkMax(kRight, MotorType.kBrushless);
     rightMotor.setSmartCurrentLimit(CurrentLimit.kShooter);
@@ -52,9 +52,8 @@ public class Shooter extends SubsystemBase {
     rightEncoder.setVelocityConversionFactor(1);
     rightPID = rightMotor.getPIDController();
     rightPID.setP(0);
-    rightPID.setFF(0.1);
-
-    shooterFF = new SimpleMotorFeedforward(0.01, kv);
+    rightPID.setFF(0.000175);
+    rightMotor.burnFlash();
   }
 
   @Override
@@ -63,7 +62,6 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Desired Shooter Speed", desiredVelocity);
     SmartDashboard.putNumber("Shooter Speed", leftEncoder.getVelocity());
     SmartDashboard.putNumber("Shooter Pos", leftEncoder.getPosition());
-    double ff = shooterFF.calculate(desiredVelocity);
     leftPID.setReference(desiredVelocity, ControlType.kVelocity, 0);
     rightPID.setReference(desiredVelocity, ControlType.kVelocity, 0);
   }
@@ -87,11 +85,9 @@ public class Shooter extends SubsystemBase {
 
   public Command autoShoot(double time) {
     return runEnd(() -> {
-      leftMotor.set(kPower);
-      rightMotor.set(kPower);
+      desiredVelocity = 5820 * 0.75;
     }, () -> {
-      leftMotor.set(0);
-      rightMotor.set(0);
+      desiredVelocity = 0;
     }).withTimeout(time);
   }
 }
