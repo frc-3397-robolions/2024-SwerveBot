@@ -155,7 +155,7 @@ public final class Constants {
     public static final double kFF = 0;
     public static final double kGearRatio = 100;
     public static final double kAnglePositionFactor = 1 / (kGearRatio) * 2 * Math.PI;
-    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.01, true, 3.4);
+    public static Map<Boolean, Double> intakeStates = Map.of(false, 0.07, true, 3.2);
     public static final double kPositionTolerance = 0.04;
     public static final double kIntakePower = 0.75;
     public static final double kOuttakePower = -1;

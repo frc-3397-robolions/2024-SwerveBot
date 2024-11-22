@@ -114,12 +114,6 @@ public class Drivetrain extends SubsystemBase {
       getModulePositions(),
       new Pose2d());
 
-  private SwerveDrivePoseEstimator m_autoPoseEstimator = new SwerveDrivePoseEstimator(
-      DriveConstants.kSwerveKinematics,
-      getGyro(),
-      getModulePositions(),
-      new Pose2d());
-
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
    */
@@ -326,10 +320,6 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Gyro Angle", ahrs.getAngle());
   }
 
-  public void updateAutoOdometry() {
-    m_autoOdometry.update(getGyro(), getModulePositions());
-  }
-
   /**
    * Function to retrieve latest robot gyro angle.
    * 
@@ -356,13 +346,6 @@ public class Drivetrain extends SubsystemBase {
     return pose;
   }
 
-  public Pose2d getAutoPose() {
-    updateAutoOdometry();
-    Pose2d pose = m_autoPoseEstimator.getEstimatedPosition();
-    Translation2d position = pose.getTranslation();
-    return m_autoPoseEstimator.getEstimatedPosition();
-  }
-
   /**
    * Resets the odometry and gyro to the specified pose.
    *
@@ -373,7 +356,6 @@ public class Drivetrain extends SubsystemBase {
     ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
     updateKeepAngle();
     m_poseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
-    m_autoPoseEstimator.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
   public void setPose(Pose2d pose) {

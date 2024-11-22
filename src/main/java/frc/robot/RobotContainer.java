@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,8 +62,11 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Lower Intake", m_intake.moveIntakeOut().until(m_intake::getIntakeArrived));
     NamedCommands.registerCommand("Raise Intake", m_intake.moveIntakeIn().until(m_intake::getIntakeArrived));
-    NamedCommands.registerCommand("Spin Wheels", m_shooter.autoShoot(10));
+    NamedCommands.registerCommand("Toggle Intaking", m_intake.toggleIntaking());
+
+    NamedCommands.registerCommand("Spin Wheels", m_shooter.autoShoot(5));
     NamedCommands.registerCommand("Eject Note", m_intake.eject(1));
+    NamedCommands.registerCommand("Zero Pose", m_drivetrain.runOnce(() -> m_drivetrain.resetOdometry(new Pose2d())));
 
     m_chooser = AutoBuilder.buildAutoChooser("1M Forward");
     SmartDashboard.putData("Auto Chooser", m_chooser);
@@ -70,6 +74,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     frontCamera = CameraServer.startAutomaticCapture();
+    CameraServer.startAutomaticCapture("camera", 0);
   }
 
   /**
@@ -105,6 +110,9 @@ public class RobotContainer {
     m_operatorController.button(2).onTrue(m_intake.toggleOuttaking());
     m_operatorController.button(6).whileTrue(m_shooter.shoot(0.75));
     m_operatorController.button(5).whileTrue(m_shooter.shoot(1));
+    m_operatorController.button(5).whileTrue(m_shooter.shoot(1));
+    m_operatorController.axisLessThan(1, 0.0).whileTrue(m_intake.increasePosition());
+    m_operatorController.axisGreaterThan(1, 0.0).whileTrue(m_intake.decreasePosition());
   }
 
   /**

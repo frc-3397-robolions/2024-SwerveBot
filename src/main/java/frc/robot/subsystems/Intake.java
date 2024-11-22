@@ -21,6 +21,8 @@ import frc.robot.utilities.MathUtils;
 
 import static frc.robot.Constants.IntakeConstants.*;
 
+//import org.apache.commons.collections4.map.HashedMap;
+
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   private final CANSparkMax angleMotor;
@@ -31,9 +33,12 @@ public class Intake extends SubsystemBase {
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private boolean intakeDesiredOut = false;
+  private int[] values = new int[] { 1, 2, 3 };
   private boolean intakeArrived = false;
   private boolean intaking = false;
   private boolean outtaking = false;
+  private double updateIntake = 0.0;
+  private double currentPosition = 0.0;
 
   public Intake() {
     // The motor controlling the angle of the assembly
@@ -44,7 +49,7 @@ public class Intake extends SubsystemBase {
     angleMotor.setInverted(false);
     angleMotor.setSoftLimit(SoftLimitDirection.kForward, intakeStates.get(true).floatValue());
     angleMotor.setSoftLimit(SoftLimitDirection.kReverse, intakeStates.get(false).floatValue());
-    angleMotor.setIdleMode(IdleMode.kCoast);
+    angleMotor.setIdleMode(IdleMode.kCoast);// to do- change to brake
 
     angleEncoder = angleMotor.getEncoder();
     angleEncoder.setPositionConversionFactor(kAnglePositionFactor);
@@ -66,19 +71,24 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_goal = new TrapezoidProfile.State(intakeStates.get(intakeDesiredOut).floatValue(), 0);
+    // System.out.println("Update Intake:" + updateIntake);
+    // System.out.println("Position:" + currentPosition);
+
+    m_goal = new TrapezoidProfile.State(currentPosition, 0);
     m_setpoint = profile.calculate(0.02, m_setpoint, m_goal);
     // Set the PID Controller to the corresponding angle for in/out
     anglePID.setReference(m_setpoint.position, ControlType.kPosition);
 
     // If the intake is within tolerance of it's desired angle, set this variable to
     // true so other files can act
-    if (MathUtils.angleInRange(angleEncoder.getPosition(), intakeStates.get(intakeDesiredOut), kPositionTolerance))
+
+    if (MathUtils.angleInRange(angleEncoder.getPosition(), currentPosition, kPositionTolerance))
       intakeArrived = true;
     else
       intakeArrived = false;
 
     // Drive intake wheels based on the desired state
+
     if (intaking)
       driveMotor.set(kIntakePower);
     else if (outtaking)
@@ -88,7 +98,7 @@ public class Intake extends SubsystemBase {
 
     // Putting data on SmartDashboard
     SmartDashboard.putNumber("Intake Angle", angleEncoder.getPosition());
-    SmartDashboard.putNumber("Intake Desired Angle", intakeStates.get(intakeDesiredOut));
+    SmartDashboard.putNumber("Intake Desired Angle", currentPosition /* intakeStates.get(intakeDesiredOut) */);
     SmartDashboard.putBoolean("Intake Arrived", intakeArrived);
     SmartDashboard.putBoolean("Intaking", intaking);
     SmartDashboard.putBoolean("Outtaking", outtaking);
@@ -118,12 +128,27 @@ public class Intake extends SubsystemBase {
   public Command moveIntakeOut() {
     return runOnce(() -> {
       intakeDesiredOut = true;
+      currentPosition = intakeStates.get(intakeDesiredOut).floatValue();
     });
   }
 
   public Command moveIntakeIn() {
     return runOnce(() -> {
       intakeDesiredOut = false;
+      currentPosition = intakeStates.get(intakeDesiredOut).floatValue();
+    });
+  }
+
+  public Command increasePosition() {
+    return runOnce(() -> {
+      // updateIntake = 0.1; // test with +=
+      currentPosition += -0.1;
+    });
+  }
+
+  public Command decreasePosition() {
+    return runOnce(() -> {
+      currentPosition += 0.1;
     });
   }
 
