@@ -37,6 +37,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import java.beans.DesignMode;
@@ -472,6 +473,13 @@ public class Drivetrain extends SubsystemBase {
     if (result.hasTargets()) {
       output = -m_keepAnglePID.calculate(result.getBestTarget().getYaw(), 0);
     }
+    return output;
+  }
+
+  public double rotateToJoystickPos(XboxController xb) {
+    double output = 0;
+    // TODO might not work, maybe adjust
+    output = -m_keepAnglePID.calculate(getGyro().getRadians(), Math.atan(xb.getRightY() / xb.getRightX()));
     return output;
   }
 
