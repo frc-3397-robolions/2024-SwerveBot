@@ -135,15 +135,17 @@ public final class Constants {
     public static final double kMaxAngularAccel = 1.5 * Math.PI;
 
     public static final class KeepAngle {
-      public static final double kp = 0.30;
+      public static final double kp = 4.3;
       public static final double ki = 0.0;
-      public static final double kd = 0.0;
+      public static final double kd = 0.03;
     }
 
     public static final SwerveDriveKinematics kSwerveKinematics = new SwerveDriveKinematics(FrontLeft.kLocation,
         FrontRight.kLocation, RearLeft.kLocation, RearRight.kLocation);
 
     public static final double kRotTransFactor = 0.045;
+
+    public static final double kRotTolerance = 0.7;
   }
 
   public static final class IntakeConstants {

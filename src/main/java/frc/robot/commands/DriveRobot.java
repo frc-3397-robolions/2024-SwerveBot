@@ -25,8 +25,13 @@ public class DriveRobot extends Command {
         desiredTrans[0] *= maxLinear;
         desiredTrans[1] *= maxLinear;
 
+        // double desiredAngleRad = Math.atan(m_controller.getRightY() /
+        // m_controller.getRightX());
+        // SmartDashboard.putNumber("Desired Angle", desiredAngleRad);
+
         double desiredRot = MathUtils.inputTransform(m_controller.getRightX()) * DriveConstants.kMaxAngularSpeed;
-        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, true, false);
+
+        m_drivetrain.drive(desiredTrans[0], desiredTrans[1], desiredRot, true, true, false, m_controller);
 
         SmartDashboard.putBoolean("DrivingByController", true);
     }

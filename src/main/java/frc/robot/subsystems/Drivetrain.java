@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -74,6 +75,7 @@ public class Drivetrain extends SubsystemBase {
   private double lastRotTime = 0.0;
   private double timeSinceDrive = 0.0;
   private double lastDriveTime = 0.0;
+  private double desiredAngle = 0.0;
 
   private final PIDController m_keepAnglePID = new PIDController(KeepAngle.kp, KeepAngle.ki, KeepAngle.kd);
 
@@ -165,7 +167,7 @@ public class Drivetrain extends SubsystemBase {
    */
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean keepAngle,
-      boolean noteLockOn) {
+      boolean noteLockOn, CommandXboxController m_controller) {
 
     xSpeed = m_slewX.calculate(xSpeed);
     ySpeed = m_slewY.calculate(ySpeed);
@@ -175,11 +177,32 @@ public class Drivetrain extends SubsystemBase {
     m_latestSlew[1] = ySpeed;
     m_latestSlew[2] = rot;
 
-    if (keepAngle) {
-      rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
-    } else if (noteLockOn) {
-      rot = performNoteLockOn();
+    // SmartDashboard.putNumber("Current Gyro Angle", getGyro().getRadians());
+
+    SmartDashboard.putBoolean("Keep Angle", keepAngle);
+
+    if (Math.sqrt((m_controller.getRightX() * m_controller.getRightX())
+        + (m_controller.getRightY() * m_controller.getRightY())) >= DriveConstants.kRotTolerance) {
+      desiredAngle = getDesiredAngle(m_controller);
     }
+
+    SmartDashboard.putNumber("Desired Angle", desiredAngle);
+
+    double currentAngleRad = getGyro().getRadians() % (2 * Math.PI);
+    SmartDashboard.putNumber("Current Angle", currentAngleRad);
+
+    m_keepAnglePID.enableContinuousInput(0, (2 * Math.PI));
+    rot = m_keepAnglePID.calculate(currentAngleRad, desiredAngle); // Set output command
+
+    /*
+     * if (keepAngle) {
+     * rot = performKeepAngle(xSpeed, ySpeed, rot, m_controller); // Calls the keep
+     * angle function to update the keep
+     * // angle or rotate
+     * } else if (noteLockOn) {
+     * rot = performNoteLockOn();
+     * }
+     */
 
     if (Math.abs(rot) < 0.02) {
       rot = 0.0;
@@ -222,6 +245,22 @@ public class Drivetrain extends SubsystemBase {
     updateOdometry();
 
     getPose();
+  }
+
+  public double getDesiredAngle(CommandXboxController m_controller) {
+    double desiredAngleRad = 0;
+
+    SmartDashboard.putNumber("Controller X", m_controller.getRightX());
+    SmartDashboard.putNumber("Controller Y", m_controller.getRightY());
+    if (m_controller.getRightX() > 0) {
+      desiredAngleRad = (Math.PI / 2) - Math.atan((-1 * m_controller.getRightY()) /
+          m_controller.getRightX());
+    } else if (m_controller.getRightX() < 0) {
+      desiredAngleRad = (3 * (Math.PI / 2)) - Math.atan((-1 * m_controller.getRightY()) /
+          m_controller.getRightX());
+    }
+
+    return desiredAngleRad;
   }
 
   @Override
@@ -439,7 +478,7 @@ public class Drivetrain extends SubsystemBase {
    * @param ySpeed is the input drive Y speed command
    * @param rot    is the input drive rotation speed command
    */
-  private double performKeepAngle(double xSpeed, double ySpeed, double rot) {
+  private double performKeepAngle(double xSpeed, double ySpeed, double rot, CommandXboxController m_controller) {
     double output = rot; // Output shouold be set to the input rot command unless the Keep Angle PID is
                          // called
     if (Math.abs(rot) >= 0.01) { // If the driver commands the robot to rotate set the
@@ -456,13 +495,30 @@ public class Drivetrain extends SubsystemBase {
                                                              // time
     if (timeSinceRot < 0.25) { // Update keepAngle up until 0.5s after rotate command stops to allow rotation
                                // move to finish
-      keepAngle = getGyro().getRadians();
-    } else if (Math.abs(rot) <= 0.01 && timeSinceDrive < 0.25) { // Run Keep angle pid
-                                                                 // until 0.75s after drive
-                                                                 // command stops to combat
-                                                                 // decel drift
-      output = m_keepAnglePID.calculate(getGyro().getRadians(), keepAngle); // Set output command to the result of the
-                                                                            // Keep Angle PID
+      double desiredAngleRad = Math.PI - Math.atan(m_controller.getRightY() / m_controller.getRightX());
+      ;
+
+      if (m_controller.getRightX() > 0) {
+        desiredAngleRad = Math.PI - Math.atan(m_controller.getRightY() /
+            m_controller.getRightX());
+      } else if (m_controller.getRightX() < 0) {
+        desiredAngleRad = ((3 / 2) * Math.PI) - Math.atan(m_controller.getRightY() /
+            m_controller.getRightX());
+      }
+
+      SmartDashboard.putNumber("Desired Angle", desiredAngleRad);
+      // keepAngle = getGyro().getRadians();
+      keepAngle = desiredAngleRad;
+      // } else if (Math.abs(rot) <= 0.01 && timeSinceDrive < 0.25) { // Run Keep
+      // angle pid
+      // until 0.75s after drive
+      // command stops to combat
+      // decel drift
+      double currentAngleRad = getGyro().getRadians() % (2 * Math.PI);
+      output = m_keepAnglePID.calculate(currentAngleRad, keepAngle); // Set output command to the result of the
+                                                                     // Keep Angle PID
+
+      m_keepAnglePID.enableContinuousInput(0, (2 * Math.PI));
     }
     return output;
   }
